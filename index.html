@@ -96,7 +96,11 @@ input::placeholder{color:#bbb;font-weight:400;opacity:0.7;}
 <div>
 <h1 id="headerTitle" class="text-[20px] font-extrabold">মার্কেট সার্ভে</h1>
 <div id="dynamicUserInfo"><p id="headerSubName" class="text-[#a0804d] font-bold text-[13px]">প্রোফাইল সেট করুন</p><p id="headerCompanyInfo" class="text-[11px] hidden"></p><p id="headerDesigInfo" class="text-[11px] hidden"></p><p id="headerMobileInfo" class="text-[11px] hidden"></p></div>
-<p id="headerDate" class="text-[10px]">শুক্রবার, ৯ অক্টোবর, ২০২৬</p>
+<div id="liveDateTimeContainer" class="text-[11px] leading-tight mt-1">
+<div id="liveTime">Time: --:-- --</div>
+<div id="liveDate">Date: --</div>
+<div id="liveDay">Day: --</div>
+</div>
 </div>
 </div>
 <button onclick="logoutApp()" style="background:#fee;border:1px solid #fcc;padding:5px 10px;border-radius:20px;font-size:11px;cursor:pointer;margin-right:6px;">Logout</button><div class="lang-toggle" id="langToggle"><div class="lang-opt" data-lang="en">EN</div><div class="lang-opt active" data-lang="bn">BN</div></div>
@@ -1167,6 +1171,73 @@ function logoutApp(){
 })();
 </script>
 
+
+<script>
+// === LIVE TIME DATE DAY - Like Lifestyle App - BN/EN Both ===
+(function(){
+  const bnMonths = ["জানুয়ারি","ফেব্রুয়ারি","মার্চ","এপ্রিল","মে","জুন","জুলাই","আগস্ট","সেপ্টেম্বর","অক্টোবর","নভেম্বর","ডিসেম্বর"];
+  const enMonths = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+  const bnDays = ["রবিবার","সোমবার","মঙ্গলবার","বুধবার","বৃহস্পতিবার","শুক্রবার","শনিবার"];
+  const enDays = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+  const bnDigits = ["০","১","২","৩","৪","৫","৬","৭","৮","৯"];
+
+  function toBnNum(n){
+    return n.toString().split('').map(c=> bnDigits[parseInt(c)] || c).join('');
+  }
+
+  function updateLiveDateTime(){
+    const now = new Date();
+    const isEN = document.querySelector('.lang-opt.active')?.dataset?.lang === 'en' || document.getElementById('langToggle')?.innerHTML.includes('EN') && document.querySelector('.lang-opt[data-lang="en"].active');
+    // Determine language from active class
+    let lang = 'bn';
+    const activeLang = document.querySelector('.lang-opt.active');
+    if(activeLang) lang = activeLang.dataset.lang || 'bn';
+
+    const hours = now.getHours();
+    const minutes = now.getMinutes().toString().padStart(2,'0');
+    const seconds = now.getSeconds().toString().padStart(2,'0');
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+    const h12 = hours % 12 || 12;
+
+    const day = now.getDay();
+    const date = now.getDate();
+    const month = now.getMonth();
+    const year = now.getFullYear();
+
+    const timeEl = document.getElementById('liveTime');
+    const dateEl = document.getElementById('liveDate');
+    const dayEl = document.getElementById('liveDay');
+
+    if(!timeEl || !dateEl || !dayEl) return;
+
+    if(lang === 'en'){
+      timeEl.textContent = `Time: ${h12}:${minutes}:${seconds} ${ampm}`;
+      dateEl.textContent = `Date: ${date} ${enMonths[month]} ${year}`;
+      dayEl.textContent = `Day: ${enDays[day]}`;
+    } else {
+      timeEl.textContent = `সময়: ${toBnNum(h12)}:${toBnNum(minutes)}:${toBnNum(seconds)} ${ampm}`;
+      dateEl.textContent = `তারিখ: ${toBnNum(date)} ${bnMonths[month]} ${toBnNum(year)}`;
+      dayEl.textContent = `বার: ${bnDays[day]}`;
+    }
+  }
+
+  setInterval(updateLiveDateTime, 1000);
+  updateLiveDateTime();
+
+  // Update on language toggle
+  const observer = new MutationObserver(()=>{ updateLiveDateTime(); });
+  const langToggle = document.getElementById('langToggle');
+  if(langToggle) observer.observe(langToggle, {attributes:true, childList:true, subtree:true});
+
+  // Also listen to click on lang-opt
+  document.addEventListener('click', function(e){
+    if(e.target.classList.contains('lang-opt')){
+      setTimeout(updateLiveDateTime, 100);
+    }
+  });
+})();
+</script>
+
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script>
@@ -1361,6 +1432,73 @@ function logoutApp(){
     });
   }
   const saved=localStorage.getItem('profilePhoto'); if(saved) showPhoto(saved);
+})();
+</script>
+
+
+<script>
+// === LIVE TIME DATE DAY - Like Lifestyle App - BN/EN Both ===
+(function(){
+  const bnMonths = ["জানুয়ারি","ফেব্রুয়ারি","মার্চ","এপ্রিল","মে","জুন","জুলাই","আগস্ট","সেপ্টেম্বর","অক্টোবর","নভেম্বর","ডিসেম্বর"];
+  const enMonths = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+  const bnDays = ["রবিবার","সোমবার","মঙ্গলবার","বুধবার","বৃহস্পতিবার","শুক্রবার","শনিবার"];
+  const enDays = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+  const bnDigits = ["০","১","২","৩","৪","৫","৬","৭","৮","৯"];
+
+  function toBnNum(n){
+    return n.toString().split('').map(c=> bnDigits[parseInt(c)] || c).join('');
+  }
+
+  function updateLiveDateTime(){
+    const now = new Date();
+    const isEN = document.querySelector('.lang-opt.active')?.dataset?.lang === 'en' || document.getElementById('langToggle')?.innerHTML.includes('EN') && document.querySelector('.lang-opt[data-lang="en"].active');
+    // Determine language from active class
+    let lang = 'bn';
+    const activeLang = document.querySelector('.lang-opt.active');
+    if(activeLang) lang = activeLang.dataset.lang || 'bn';
+
+    const hours = now.getHours();
+    const minutes = now.getMinutes().toString().padStart(2,'0');
+    const seconds = now.getSeconds().toString().padStart(2,'0');
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+    const h12 = hours % 12 || 12;
+
+    const day = now.getDay();
+    const date = now.getDate();
+    const month = now.getMonth();
+    const year = now.getFullYear();
+
+    const timeEl = document.getElementById('liveTime');
+    const dateEl = document.getElementById('liveDate');
+    const dayEl = document.getElementById('liveDay');
+
+    if(!timeEl || !dateEl || !dayEl) return;
+
+    if(lang === 'en'){
+      timeEl.textContent = `Time: ${h12}:${minutes}:${seconds} ${ampm}`;
+      dateEl.textContent = `Date: ${date} ${enMonths[month]} ${year}`;
+      dayEl.textContent = `Day: ${enDays[day]}`;
+    } else {
+      timeEl.textContent = `সময়: ${toBnNum(h12)}:${toBnNum(minutes)}:${toBnNum(seconds)} ${ampm}`;
+      dateEl.textContent = `তারিখ: ${toBnNum(date)} ${bnMonths[month]} ${toBnNum(year)}`;
+      dayEl.textContent = `বার: ${bnDays[day]}`;
+    }
+  }
+
+  setInterval(updateLiveDateTime, 1000);
+  updateLiveDateTime();
+
+  // Update on language toggle
+  const observer = new MutationObserver(()=>{ updateLiveDateTime(); });
+  const langToggle = document.getElementById('langToggle');
+  if(langToggle) observer.observe(langToggle, {attributes:true, childList:true, subtree:true});
+
+  // Also listen to click on lang-opt
+  document.addEventListener('click', function(e){
+    if(e.target.classList.contains('lang-opt')){
+      setTimeout(updateLiveDateTime, 100);
+    }
+  });
 })();
 </script>
 
