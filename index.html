@@ -15,9 +15,9 @@
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-<link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+Bengali:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
-body{padding-top:env(safe-area-inset-top, 0px);font-family:'Hind Siliguri',sans-serif;background:#fffcf5;padding-bottom:calc(105px + env(safe-area-inset-bottom))}
+body{padding-top:env(safe-area-inset-top, 0px);font-family:'Noto Serif Bengali',serif;background:#fffcf5;padding-bottom:calc(105px + env(safe-area-inset-bottom))}
 .bottom-nav{position:fixed;bottom:0;left:0;right:0;background:#fffef9;border-top:1px solid #f0e6d3;display:flex;justify-content:space-around;align-items:flex-end;padding:10px 0 calc(12px + env(safe-area-inset-bottom));z-index:50;min-height:calc(72px + env(safe-area-inset-bottom));box-sizing:border-box}
 .nav-btn{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:11px;color:#8b7355;padding:4px 10px;font-weight:600}
 .nav-btn.active{color:#1d4ed8}
@@ -96,10 +96,10 @@ input::placeholder{color:#bbb;font-weight:400;opacity:0.7;}
 <div>
 <h1 id="headerTitle" class="text-[20px] font-extrabold">মার্কেট সার্ভে</h1>
 <div id="dynamicUserInfo"><p id="headerSubName" class="text-[#a0804d] font-bold text-[13px]">প্রোফাইল সেট করুন</p><p id="headerCompanyInfo" class="text-[11px] hidden"></p><p id="headerDesigInfo" class="text-[11px] hidden"></p><p id="headerMobileInfo" class="text-[11px] hidden"></p></div>
-<div id="liveDateTimeContainer" class="text-[11px] leading-tight mt-1">
-<div id="liveTime">Time: --:-- --</div>
-<div id="liveDate">Date: --</div>
-<div id="liveDay">Day: --</div>
+<div id="liveDateTimeContainer" class="text-[11px] leading-tight mt-1 font-bold" style="font-weight:700;">
+<div id="liveTime" style="font-weight:700;">Time: --:-- --</div>
+<div id="liveDate" style="font-weight:700;">Date: --</div>
+<div id="liveDay" style="font-weight:700;">Day: --</div>
 </div>
 </div>
 </div>
