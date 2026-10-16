@@ -119,7 +119,7 @@ input::placeholder{color:#bbb;font-weight:400;opacity:0.7;}
 <form id="surveyForm" class="space-y-5">
 
 <div class="bg-white rounded-2xl border p-5" data-section="ownership">
-<div class="section-title"><span>OWNERSHIP</span><button type="button" class="sec-save secSaveBtn" data-sec="ownership">Save</button></div>
+<div class="section-title"><span>1. Ownership</span><button type="button" class="sec-save secSaveBtn" data-sec="ownership">Save</button></div>
 <div class="grid grid-cols-2 gap-4">
 <label>Ownership Type<select id="ownershipType" name="ownershipType" class="w-full border rounded-xl p-3 mt-1"><option value="1">1 Person (100%)</option><option value="2">2 Persons</option></select></label>
 <label>Owner 1 %<input id="owner1Pct" name="owner1Pct" type="number" value="100" class="w-full border rounded-xl p-3 mt-1"></label>
@@ -127,9 +127,9 @@ input::placeholder{color:#bbb;font-weight:400;opacity:0.7;}
 <div id="owner2Box" class="hidden mt-3 grid grid-cols-2 gap-4"><label>Owner 2 Name<input name="owner2Name" class="w-full border rounded-xl p-3 mt-1"></label><label>Owner 2 %<input id="owner2Pct" name="owner2Pct" type="number" value="50" class="w-full border rounded-xl p-3 mt-1"></label></div>
 </div>
 
-<!-- 1. BUSINESS INFORMATION - WITH LAC and K -->
+<!-- 2. Business Information - WITH LAC and K -->
 <div class="bg-white rounded-2xl border p-5" data-section="business1">
-<div class="section-title"><span>1. BUSINESS INFORMATION</span><button type="button" class="sec-save secSaveBtn" data-sec="business1">Save</button></div>
+<div class="section-title"><span>2. Business Information</span><button type="button" class="sec-save secSaveBtn" data-sec="business1">Save</button></div>
 
 <div class="grid md:grid-cols-2 gap-4">
 <label>Business Name*<input name="businessName" required class="w-full border rounded-xl p-3 mt-1"></label>
@@ -234,7 +234,7 @@ input::placeholder{color:#bbb;font-weight:400;opacity:0.7;}
 
 <!-- EXISTING LOAN - UPDATED -->
 <div class="bg-white rounded-2xl border p-5" data-section="loans">
-<div class="section-title"><span>2. EXISTING LOAN</span><button type="button" class="sec-save secSaveBtn" data-sec="loans">Save</button></div>
+<div class="section-title"><span>3. Existing Loan</span><button type="button" class="sec-save secSaveBtn" data-sec="loans">Save</button></div>
 <div class="flex gap-2 mb-3 flex-wrap">
 <button type="button" data-tab="ngo" class="tabBtn bg-[#2b2b2b] text-white px-4 py-2 rounded-full text-sm">NGO</button>
 <button type="button" data-tab="bank" class="tabBtn bg-gray-200 px-4 py-2 rounded-full text-sm">Bank</button>
@@ -277,7 +277,7 @@ input::placeholder{color:#bbb;font-weight:400;opacity:0.7;}
 
 <!-- FAMILY EXPENDITURE - Thousand/K -->
 <div class="bg-white rounded-2xl border p-5" data-section="familyExp">
-<div class="section-title"><span>3. FAMILY EXPENDITURE (Monthly)</span><button type="button" class="sec-save secSaveBtn" data-sec="familyExp">Save</button></div>
+<div class="section-title"><span>4. Family Expenditure (Monthly)</span><button type="button" class="sec-save secSaveBtn" data-sec="familyExp">Save</button></div>
 
 <div id="familyExpContainer">
 <div data-person="1"><p class="font-bold text-sm mb-2 text-blue-700">Person 1</p><div class="grid md:grid-cols-3 gap-3">
@@ -309,7 +309,7 @@ input::placeholder{color:#bbb;font-weight:400;opacity:0.7;}
 
 <!-- INCOME FROM OTHER SOURCES - Thousand/K -->
 <div class="bg-white rounded-2xl border p-5" data-section="otherIncome">
-<div class="section-title"><span>4. Income from other sources ( Monthly)</span><button type="button" class="sec-save secSaveBtn" data-sec="otherIncome">Save</button></div>
+<div class="section-title"><span>5. Income from other sources (Monthly)</span><button type="button" class="sec-save secSaveBtn" data-sec="otherIncome">Save</button></div>
 
 <div id="otherIncomeContainer">
 <div data-person="1"><p class="font-bold text-sm mb-2 text-blue-700">Person 1</p><div class="grid md:grid-cols-3 gap-3">
@@ -342,7 +342,7 @@ input::placeholder{color:#bbb;font-weight:400;opacity:0.7;}
 
 <!-- FAMILY ASSET & LIABILITY - Lac -->
 <div class="bg-white rounded-2xl border p-5" data-section="familyAsset">
-<div class="section-title"><span>6. FAMILY ASSET & LIABILITY</span><button type="button" class="sec-save secSaveBtn" data-sec="familyAsset">Save</button></div>
+<div class="section-title"><span>6. Family Asset & Liability</span><button type="button" class="sec-save secSaveBtn" data-sec="familyAsset">Save</button></div>
 
 <div class="grid md:grid-cols-3 gap-3">
 <label>Total Family Asset <span class="unit">Lac</span><input name="familyAsset" type="number" step="0.01" class="w-full border rounded-xl p-2 mt-1" placeholder="25"></label>
@@ -353,7 +353,7 @@ input::placeholder{color:#bbb;font-weight:400;opacity:0.7;}
 
 <!-- PERSONAL ASSET WITHOUT BUSINESS -->
 <div class="bg-white rounded-2xl border p-5" data-section="personalAsset">
-<div class="section-title"><span>7. PERSONAL ASSET WITHOUT BUSINESS</span><button type="button" class="sec-save secSaveBtn" data-sec="personalAsset">Save</button></div>
+<div class="section-title"><span>7. Personal Asset</span><button type="button" class="sec-save secSaveBtn" data-sec="personalAsset">Save</button></div>
 <div id="personalAssetContainer">
 <div data-person="1"><p class="font-bold text-sm mb-2 text-blue-700">Person 1</p><div class="grid md:grid-cols-2 gap-3">
 <label>Details<textarea name="personalAsset1" rows="3" class="w-full border rounded-xl p-3 mt-1"></textarea></label>
@@ -367,7 +367,7 @@ input::placeholder{color:#bbb;font-weight:400;opacity:0.7;}
 </div>
 
 <div class="bg-white rounded-2xl border p-5" data-section="newLoan">
-<div class="section-title"><span>NEW LOAN REQUIREMENT</span><button type="button" class="sec-save secSaveBtn" data-sec="newLoan">Save</button></div>
+<div class="section-title"><span>8. New Loan Requirement</span><button type="button" class="sec-save secSaveBtn" data-sec="newLoan">Save</button></div>
 <div class="grid md:grid-cols-3 gap-3">
 <label>Desired Loan <span class="unit">Lac</span><input name="desiredLoan" type="number" step="0.01" class="w-full border rounded-xl p-2 mt-1"></label>
 <label>Which Month<input name="loanMonth" type="month" class="w-full border rounded-xl p-2 mt-1"></label>
@@ -385,7 +385,7 @@ input::placeholder{color:#bbb;font-weight:400;opacity:0.7;}
 </div>
 
 <div class="bg-white rounded-2xl border p-5" data-section="guarantor">
-<div class="section-title"><span>GUARANTOR</span><button type="button" class="sec-save secSaveBtn" data-sec="guarantor">Save</button></div>
+<div class="section-title"><span>9. Guarantors</span><button type="button" class="sec-save secSaveBtn" data-sec="guarantor">Save</button></div>
 
 <!-- No of Guarantor + Generate -->
 <div class="flex flex-wrap items-end gap-3 mb-5 p-3 bg-[#fffcf5] border border-[#f0e0c0] rounded-2xl">
@@ -1143,17 +1143,17 @@ function buildReportHTML(s){
  const profile=JSON.parse(localStorage.getItem('userProfile')||'{}');
  const fmt=(v,unit)=>{if(v===undefined||v===''||v===null) return '-'; return v+' '+(unit||'');};
  return '<div class="pdf-header"><div><h1 style="font-size:20px;font-weight:800;margin:0">Market Survey / মার্কেট সার্ভে</h1><p style="font-size:11px;color:#666;margin:2px 0">Survey Report - '+new Date(s.createdAt).toLocaleString('en-BD')+'</p><p style="font-size:11px;">Surveyed By: '+(profile.name||'')+' | '+(profile.company||'')+' | '+(profile.mobile||'')+'</p></div><div style="text-align:right;font-size:10px;color:#888"><p>Developer: Md. Abdus Salam</p><p>+8801737265245</p><p>salamwgp@gmail.com</p></div></div>'
- +'<div class="pdf-section"><div class="pdf-section-title">1. BUSINESS INFORMATION</div><div class="pdf-grid"><div class="pdf-field"><b>Business Name:</b> '+(s.businessName||'')+'</div><div class="pdf-field"><b>Owner Name:</b> '+(s.ownerName||'')+'</div><div class="pdf-field"><b>Mobile:</b> '+(s.mobile||'')+'</div><div class="pdf-field"><b>Business Type:</b> '+(s.businessType||'')+'</div><div class="pdf-field"><b>Address:</b> '+(s.address||'')+'</div><div class="pdf-field"><b>Ownership:</b> '+(s.ownershipType||'1')+' Person</div></div>'
+ +'<div class="pdf-section"><div class="pdf-section-title">2. Business Information</div><div class="pdf-grid"><div class="pdf-field"><b>Business Name:</b> '+(s.businessName||'')+'</div><div class="pdf-field"><b>Owner Name:</b> '+(s.ownerName||'')+'</div><div class="pdf-field"><b>Mobile:</b> '+(s.mobile||'')+'</div><div class="pdf-field"><b>Business Type:</b> '+(s.businessType||'')+'</div><div class="pdf-field"><b>Address:</b> '+(s.address||'')+'</div><div class="pdf-field"><b>Ownership:</b> '+(s.ownershipType||'1')+' Person</div></div>'
  +'<div style="margin-top:10px"><p style="font-weight:700;font-size:12px;background:#f0f9ff;padding:4px 8px;border-radius:6px">Core Business (Lac)</p><div class="pdf-grid-3" style="margin-top:8px"><div class="pdf-field"><b>Cash In Hand:</b> '+fmt(s.cashInHand,'Lac')+'</div><div class="pdf-field"><b>Goods In Transit:</b> '+fmt(s.goodsInTransit,'Lac')+'</div><div class="pdf-field"><b>Stock:</b> '+fmt(s.stock,'Lac')+'</div><div class="pdf-field"><b>Receivables:</b> '+fmt(s.receivables,'Lac')+'</div><div class="pdf-field"><b>Payables:</b> '+fmt(s.payables,'Lac')+'</div><div class="pdf-field"><b>Monthly Sales:</b> '+fmt(s.monthlySales,'Lac')+'</div><div class="pdf-field"><b>Yearly Sales:</b> '+fmt(s.yearlySales,'Lac')+'</div><div class="pdf-field"><b>Possession Value:</b> '+fmt(s.possessionValue,'Lac')+'</div><div class="pdf-field"><b>Shop Advance:</b> '+fmt(s.shopAdvance,'Lac')+'</div><div class="pdf-field"><b>Building Cost:</b> '+fmt(s.buildingCost,'Lac')+'</div><div class="pdf-field"><b>Furniture:</b> '+fmt(s.furniture,'Lac')+'</div><div class="pdf-field"><b>Machineries:</b> '+fmt(s.machineries,'Lac')+'</div></div>'
  +'<div class="pdf-grid" style="margin-top:8px"><div class="pdf-field"><b>Vehicle No:</b> '+(s.vehicleNo||'-')+'</div><div class="pdf-field"><b>Vehicle Price:</b> '+fmt(s.vehiclePrice,'Lac')+'</div><div class="pdf-field"><b>Total Employee:</b> '+(s.totalEmployee||'-')+'</div><div class="pdf-field"><b>Total Salary:</b> '+fmt(s.totalSalary,'Thousand')+'</div></div>'
  +'<div class="pdf-grid-3" style="margin-top:8px"><div class="pdf-field"><b>Owners Drawing:</b> '+fmt(s.ownersDrawing,'Thousand')+'</div><div class="pdf-field"><b>Rent:</b> '+fmt(s.rentBusiness,'Thousand')+'</div><div class="pdf-field"><b>Electricity:</b> '+fmt(s.bizElectricity,'Thousand')+'</div><div class="pdf-field"><b>Transport:</b> '+fmt(s.transportCost,'Thousand')+'</div><div class="pdf-field"><b>Admin:</b> '+fmt(s.adminExpenses,'Thousand')+'</div><div class="pdf-field"><b>Tax:</b> '+fmt(s.tax,'Thousand')+'</div><div class="pdf-field"><b>Total Operating:</b> '+fmt(s.totalOperatingExp,'Thousand')+'</div></div></div></div>'
- +'<div class="pdf-section"><div class="pdf-section-title">2. EXISTING LOAN</div><div class="pdf-grid"><div class="pdf-field"><b>Disbursement Date:</b> '+(s.disbursementDate||'-')+'</div><div class="pdf-field"><b>Amount:</b> '+fmt(s.disbursementAmount,'Lac')+'</div><div class="pdf-field"><b>Total EMI:</b> '+fmt(s.totalEMI,'Thousand')+'</div><div class="pdf-field"><b>Outstanding:</b> '+fmt(s.currentOutstanding,'Lac')+'</div><div class="pdf-field"><b>Entertainment:</b> '+fmt(s.entertainmentCost,'Thousand')+'</div></div></div>'
- +'<div class="pdf-section"><div class="pdf-section-title">3. FAMILY EXPENDITURE (K)</div><div class="pdf-grid-3"><div class="pdf-field"><b>House Rent:</b> '+fmt(s.houseRent,'Thousand')+'</div><div class="pdf-field"><b>Food & Cloth:</b> '+fmt(s.foodCloth,'Thousand')+'</div><div class="pdf-field"><b>Education:</b> '+fmt(s.famEducation,'Thousand')+'</div><div class="pdf-field"><b>Telephone:</b> '+fmt(s.telephoneBill,'Thousand')+'</div><div class="pdf-field"><b>Medical:</b> '+fmt(s.medical,'Thousand')+'</div><div class="pdf-field"><b>Entertainment:</b> '+fmt(s.famEntertainment,'Thousand')+'</div><div class="pdf-field"><b>Conveyance:</b> '+fmt(s.conveyance,'Thousand')+'</div><div class="pdf-field"><b>Electricity:</b> '+fmt(s.houseElectricity,'Thousand')+'</div><div class="pdf-field"><b>Total:</b> '+fmt(s.totalFamExp,'Thousand')+'</div></div></div>'
- +'<div class="pdf-section"><div class="pdf-section-title">4. Income from other sources ( Monthly)</div><div class="pdf-grid-3"><div class="pdf-field"><b>Rental:</b> '+fmt(s.rentalIncome,'Thousand')+'</div><div class="pdf-field"><b>Other Business:</b> '+fmt(s.otherBusinessIncome,'Thousand')+'</div><div class="pdf-field"><b>Transport:</b> '+fmt(s.transportBusiness,'Thousand')+'</div><div class="pdf-field"><b>Remittance:</b> '+fmt(s.remittance,'Thousand')+'</div><div class="pdf-field"><b>Agricultural:</b> '+fmt(s.agriIncome,'Thousand')+'</div><div class="pdf-field"><b>Salary:</b> '+fmt(s.salaryIncome,'Thousand')+'</div><div class="pdf-field"><b>Total:</b> '+fmt(s.totalOtherIncome,'Thousand')+'</div></div></div>'
+ +'<div class="pdf-section"><div class="pdf-section-title">3. Existing Loan</div><div class="pdf-grid"><div class="pdf-field"><b>Disbursement Date:</b> '+(s.disbursementDate||'-')+'</div><div class="pdf-field"><b>Amount:</b> '+fmt(s.disbursementAmount,'Lac')+'</div><div class="pdf-field"><b>Total EMI:</b> '+fmt(s.totalEMI,'Thousand')+'</div><div class="pdf-field"><b>Outstanding:</b> '+fmt(s.currentOutstanding,'Lac')+'</div><div class="pdf-field"><b>Entertainment:</b> '+fmt(s.entertainmentCost,'Thousand')+'</div></div></div>'
+ +'<div class="pdf-section"><div class="pdf-section-title">4. Family Expenditure (Monthly)</div><div class="pdf-grid-3"><div class="pdf-field"><b>House Rent:</b> '+fmt(s.houseRent,'Thousand')+'</div><div class="pdf-field"><b>Food & Cloth:</b> '+fmt(s.foodCloth,'Thousand')+'</div><div class="pdf-field"><b>Education:</b> '+fmt(s.famEducation,'Thousand')+'</div><div class="pdf-field"><b>Telephone:</b> '+fmt(s.telephoneBill,'Thousand')+'</div><div class="pdf-field"><b>Medical:</b> '+fmt(s.medical,'Thousand')+'</div><div class="pdf-field"><b>Entertainment:</b> '+fmt(s.famEntertainment,'Thousand')+'</div><div class="pdf-field"><b>Conveyance:</b> '+fmt(s.conveyance,'Thousand')+'</div><div class="pdf-field"><b>Electricity:</b> '+fmt(s.houseElectricity,'Thousand')+'</div><div class="pdf-field"><b>Total:</b> '+fmt(s.totalFamExp,'Thousand')+'</div></div></div>'
+ +'<div class="pdf-section"><div class="pdf-section-title">5. Income from other sources (Monthly)</div><div class="pdf-grid-3"><div class="pdf-field"><b>Rental:</b> '+fmt(s.rentalIncome,'Thousand')+'</div><div class="pdf-field"><b>Other Business:</b> '+fmt(s.otherBusinessIncome,'Thousand')+'</div><div class="pdf-field"><b>Transport:</b> '+fmt(s.transportBusiness,'Thousand')+'</div><div class="pdf-field"><b>Remittance:</b> '+fmt(s.remittance,'Thousand')+'</div><div class="pdf-field"><b>Agricultural:</b> '+fmt(s.agriIncome,'Thousand')+'</div><div class="pdf-field"><b>Salary:</b> '+fmt(s.salaryIncome,'Thousand')+'</div><div class="pdf-field"><b>Total:</b> '+fmt(s.totalOtherIncome,'Thousand')+'</div></div></div>'
  /* SAVINGS PDF REMOVED */
- +'<div class="pdf-section"><div class="pdf-section-title">6. FAMILY ASSET & LIABILITY</div><div class="pdf-grid-3"><div class="pdf-field"><b>Total Asset:</b> '+fmt(s.familyAsset,'Lac')+'</div><div class="pdf-field"><b>Liabilities:</b> '+fmt(s.familyLiabilities,'Lac')+'</div><div class="pdf-field"><b>Net Worth:</b> '+fmt(s.familyNetWorth,'Lac')+'</div></div></div>'
+ +'<div class="pdf-section"><div class="pdf-section-title">6. Family Asset & Liability</div><div class="pdf-grid-3"><div class="pdf-field"><b>Total Asset:</b> '+fmt(s.familyAsset,'Lac')+'</div><div class="pdf-field"><b>Liabilities:</b> '+fmt(s.familyLiabilities,'Lac')+'</div><div class="pdf-field"><b>Net Worth:</b> '+fmt(s.familyNetWorth,'Lac')+'</div></div></div>'
  + (function(){
-   let gHtml='<div class="pdf-section"><div class="pdf-section-title">7. GUARANTOR - '+(s.noOfGuarantor|| (s.guarantors? s.guarantors.length : 0) )+' Persons</div>';
+   let gHtml='<div class="pdf-section"><div class="pdf-section-title">9. Guarantors</div>';
    if(s.guarantors && s.guarantors.length>0){
      gHtml+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;font-size:11px">';
      s.guarantors.forEach((g,i)=>{
@@ -1171,7 +1171,7 @@ function buildReportHTML(s){
    gHtml+='</div>';
    return gHtml;
  })() +
- +'<div class="pdf-section"><div class="pdf-section-title">8. NEW LOAN REQUIREMENT</div><div class="pdf-grid-3"><div class="pdf-field"><b>Desired Loan:</b> '+fmt(s.desiredLoan,'Lac')+'</div><div class="pdf-field"><b>Which Month:</b> '+(s.loanMonth||'-')+'</div><div class="pdf-field"><b>EMI Comfort:</b> '+fmt(s.emiComfort,'Thousand')+'</div></div></div>'
+ +'<div class="pdf-section"><div class="pdf-section-title">8. New Loan Requirement</div><div class="pdf-grid-3"><div class="pdf-field"><b>Desired Loan:</b> '+fmt(s.desiredLoan,'Lac')+'</div><div class="pdf-field"><b>Which Month:</b> '+(s.loanMonth||'-')+'</div><div class="pdf-field"><b>EMI Comfort:</b> '+fmt(s.emiComfort,'Thousand')+'</div></div></div>'
  +'<div style="text-align:center;margin-top:20px;font-size:10px;color:#888;border-top:1px solid #eee;padding-top:10px">Generated by Market Survey App | Developer: Md. Abdus Salam | +8801737265245</div>';
 }
 
