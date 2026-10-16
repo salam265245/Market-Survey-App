@@ -141,7 +141,7 @@ input::placeholder{color:#bbb;font-weight:400;opacity:0.7;}
 <div class="mt-4">
 <label class="font-semibold text-sm">Business Type</label>
 <input id="bizSearch" placeholder="Search: ইট, বালি, rod, cement, মুদি, grocery..." class="w-full mt-2 border-2 border-blue-100 rounded-xl p-3">
-<div id="bizList" style="max-height:320px;overflow-y:auto;" class="hidden grid md:grid-cols-1 gap-2 mt-3 max-h-80 overflow-auto border-2 border-blue-100 rounded-xl p-2 bg-gray-50"></div>
+<div id="bizList" style="max-height:320px;overflow-y:auto;display:none;" class="grid md:grid-cols-1 gap-2 mt-3 max-h-80 overflow-auto border-2 border-blue-100 rounded-xl p-2 bg-gray-50 hidden"></div>
 <input type="hidden" id="businessTypeVal" name="businessType">
 <p id="selectedBiz" class="mt-2 text-green-700 font-bold text-sm"></p>
 </div>
@@ -307,9 +307,9 @@ input::placeholder{color:#bbb;font-weight:400;opacity:0.7;}
 </div>
 </div>
 
-<!-- Income from other source ( Monthly)S - Thousand/K -->
+<!-- INCOME FROM OTHER SOURCES - Thousand/K -->
 <div class="bg-white rounded-2xl border p-5" data-section="otherIncome">
-<div class="section-title"><span>4. Income from other source ( Monthly)S</span><button type="button" class="sec-save secSaveBtn" data-sec="otherIncome">Save</button></div>
+<div class="section-title"><span>4. Income from other sources ( Monthly)</span><button type="button" class="sec-save secSaveBtn" data-sec="otherIncome">Save</button></div>
 
 <div id="otherIncomeContainer">
 <div data-person="1"><p class="font-bold text-sm mb-2 text-blue-700">Person 1</p><div class="grid md:grid-cols-3 gap-3">
@@ -587,28 +587,12 @@ function renderBiz(f=""){
 document.addEventListener('DOMContentLoaded', function(){
   const inp=document.getElementById('bizSearch');
   const list=document.getElementById('bizList');
-  if(list) list.classList.add('hidden'); // initially hidden - requirement
   if(inp){
-    inp.addEventListener('input', function(e){ 
-      const v=e.target.value.trim();
-      if(list) list.classList.remove('hidden');
-      renderBiz(v); 
-    });
-    inp.addEventListener('focus', function(e){ 
-      if(list) list.classList.remove('hidden');
-      renderBiz(e.target.value||''); 
-    });
-    inp.addEventListener('click', function(e){
-      if(list) list.classList.remove('hidden');
-      renderBiz(e.target.value||'');
-    });
+    inp.addEventListener('input', function(e){ renderBiz(e.target.value); });
+    inp.addEventListener('focus', function(e){ renderBiz(e.target.value); if(list) list.classList.remove('hidden'); });
   }
-  // Do NOT auto render all businesses on load
+  // REMOVED AUTO SHOW - will show only on search click
   renderSelectedChips();
-  const selCont=document.getElementById('selectedBiz');
-  if(selCont && selCont.innerHTML.trim()===''){
-    selCont.innerHTML='<span class="text-xs text-gray-400">Search এ ক্লিক করুন, তারপর ব্যবসা সিলেক্ট করুন / Click search to see businesses</span>';
-  }
 });
 window.removeBizItem = removeBizItem;
 function removeBizItem(idx){
@@ -1165,7 +1149,7 @@ function buildReportHTML(s){
  +'<div class="pdf-grid-3" style="margin-top:8px"><div class="pdf-field"><b>Owners Drawing:</b> '+fmt(s.ownersDrawing,'Thousand')+'</div><div class="pdf-field"><b>Rent:</b> '+fmt(s.rentBusiness,'Thousand')+'</div><div class="pdf-field"><b>Electricity:</b> '+fmt(s.bizElectricity,'Thousand')+'</div><div class="pdf-field"><b>Transport:</b> '+fmt(s.transportCost,'Thousand')+'</div><div class="pdf-field"><b>Admin:</b> '+fmt(s.adminExpenses,'Thousand')+'</div><div class="pdf-field"><b>Tax:</b> '+fmt(s.tax,'Thousand')+'</div><div class="pdf-field"><b>Total Operating:</b> '+fmt(s.totalOperatingExp,'Thousand')+'</div></div></div></div>'
  +'<div class="pdf-section"><div class="pdf-section-title">2. EXISTING LOAN</div><div class="pdf-grid"><div class="pdf-field"><b>Disbursement Date:</b> '+(s.disbursementDate||'-')+'</div><div class="pdf-field"><b>Amount:</b> '+fmt(s.disbursementAmount,'Lac')+'</div><div class="pdf-field"><b>Total EMI:</b> '+fmt(s.totalEMI,'Thousand')+'</div><div class="pdf-field"><b>Outstanding:</b> '+fmt(s.currentOutstanding,'Lac')+'</div><div class="pdf-field"><b>Entertainment:</b> '+fmt(s.entertainmentCost,'Thousand')+'</div></div></div>'
  +'<div class="pdf-section"><div class="pdf-section-title">3. FAMILY EXPENDITURE (K)</div><div class="pdf-grid-3"><div class="pdf-field"><b>House Rent:</b> '+fmt(s.houseRent,'Thousand')+'</div><div class="pdf-field"><b>Food & Cloth:</b> '+fmt(s.foodCloth,'Thousand')+'</div><div class="pdf-field"><b>Education:</b> '+fmt(s.famEducation,'Thousand')+'</div><div class="pdf-field"><b>Telephone:</b> '+fmt(s.telephoneBill,'Thousand')+'</div><div class="pdf-field"><b>Medical:</b> '+fmt(s.medical,'Thousand')+'</div><div class="pdf-field"><b>Entertainment:</b> '+fmt(s.famEntertainment,'Thousand')+'</div><div class="pdf-field"><b>Conveyance:</b> '+fmt(s.conveyance,'Thousand')+'</div><div class="pdf-field"><b>Electricity:</b> '+fmt(s.houseElectricity,'Thousand')+'</div><div class="pdf-field"><b>Total:</b> '+fmt(s.totalFamExp,'Thousand')+'</div></div></div>'
- +'<div class="pdf-section"><div class="pdf-section-title">4. Income from other source ( Monthly)S (K)</div><div class="pdf-grid-3"><div class="pdf-field"><b>Rental:</b> '+fmt(s.rentalIncome,'Thousand')+'</div><div class="pdf-field"><b>Other Business:</b> '+fmt(s.otherBusinessIncome,'Thousand')+'</div><div class="pdf-field"><b>Transport:</b> '+fmt(s.transportBusiness,'Thousand')+'</div><div class="pdf-field"><b>Remittance:</b> '+fmt(s.remittance,'Thousand')+'</div><div class="pdf-field"><b>Agricultural:</b> '+fmt(s.agriIncome,'Thousand')+'</div><div class="pdf-field"><b>Salary:</b> '+fmt(s.salaryIncome,'Thousand')+'</div><div class="pdf-field"><b>Total:</b> '+fmt(s.totalOtherIncome,'Thousand')+'</div></div></div>'
+ +'<div class="pdf-section"><div class="pdf-section-title">4. Income from other sources ( Monthly)</div><div class="pdf-grid-3"><div class="pdf-field"><b>Rental:</b> '+fmt(s.rentalIncome,'Thousand')+'</div><div class="pdf-field"><b>Other Business:</b> '+fmt(s.otherBusinessIncome,'Thousand')+'</div><div class="pdf-field"><b>Transport:</b> '+fmt(s.transportBusiness,'Thousand')+'</div><div class="pdf-field"><b>Remittance:</b> '+fmt(s.remittance,'Thousand')+'</div><div class="pdf-field"><b>Agricultural:</b> '+fmt(s.agriIncome,'Thousand')+'</div><div class="pdf-field"><b>Salary:</b> '+fmt(s.salaryIncome,'Thousand')+'</div><div class="pdf-field"><b>Total:</b> '+fmt(s.totalOtherIncome,'Thousand')+'</div></div></div>'
  /* SAVINGS PDF REMOVED */
  +'<div class="pdf-section"><div class="pdf-section-title">6. FAMILY ASSET & LIABILITY</div><div class="pdf-grid-3"><div class="pdf-field"><b>Total Asset:</b> '+fmt(s.familyAsset,'Lac')+'</div><div class="pdf-field"><b>Liabilities:</b> '+fmt(s.familyLiabilities,'Lac')+'</div><div class="pdf-field"><b>Net Worth:</b> '+fmt(s.familyNetWorth,'Lac')+'</div></div></div>'
  + (function(){
@@ -1791,6 +1775,61 @@ if('serviceWorker' in navigator){window.addEventListener('load',()=>{const b=new
 })();
 </script>
 
+
+<script>
+// FINAL FIX - Business Type hide/show logic - overrides all previous
+(function(){
+  const bizSearch = document.getElementById('bizSearch');
+  const bizList = document.getElementById('bizList');
+  if(!bizSearch || !bizList) return;
+  
+  // Force hidden on load
+  bizList.classList.add('hidden');
+  bizList.style.display='none';
+  
+  function showBizList(){
+    bizList.classList.remove('hidden');
+    bizList.style.display='grid';
+    const val = bizSearch.value || '';
+    if(typeof renderBiz === 'function') renderBiz(val);
+  }
+  function hideBizList(){
+    // only hide if nothing selected? No, keep selected chips visible, hide list
+    if(document.activeElement !== bizSearch && !bizList.matches(':hover')){
+      // delay to allow click on item
+      setTimeout(()=>{
+        if(document.activeElement !== bizSearch){
+          bizList.classList.add('hidden');
+          bizList.style.display='none';
+        }
+      }, 300);
+    }
+  }
+  
+  // Remove old listeners by cloning
+  const newSearch = bizSearch.cloneNode(true);
+  bizSearch.parentNode.replaceChild(newSearch, bizSearch);
+  
+  const s = document.getElementById('bizSearch');
+  s.addEventListener('focus', showBizList);
+  s.addEventListener('click', showBizList);
+  s.addEventListener('input', function(){
+    showBizList();
+  });
+  
+  // Hide when clicking outside
+  document.addEventListener('click', function(e){
+    if(!e.target.closest('#bizSearch') && !e.target.closest('#bizList') && !e.target.closest('#selectedBiz')){
+      const bL = document.getElementById('bizList');
+      if(bL){
+        bL.classList.add('hidden');
+        bL.style.display='none';
+      }
+    }
+  });
+})();
+</script>
+
 </body>
 
 <script>
@@ -2136,6 +2175,61 @@ if('serviceWorker' in navigator){window.addEventListener('load',()=>{const b=new
       box.classList.remove('hidden');
     }
   }catch(e){}
+})();
+</script>
+
+
+<script>
+// FINAL FIX - Business Type hide/show logic - overrides all previous
+(function(){
+  const bizSearch = document.getElementById('bizSearch');
+  const bizList = document.getElementById('bizList');
+  if(!bizSearch || !bizList) return;
+  
+  // Force hidden on load
+  bizList.classList.add('hidden');
+  bizList.style.display='none';
+  
+  function showBizList(){
+    bizList.classList.remove('hidden');
+    bizList.style.display='grid';
+    const val = bizSearch.value || '';
+    if(typeof renderBiz === 'function') renderBiz(val);
+  }
+  function hideBizList(){
+    // only hide if nothing selected? No, keep selected chips visible, hide list
+    if(document.activeElement !== bizSearch && !bizList.matches(':hover')){
+      // delay to allow click on item
+      setTimeout(()=>{
+        if(document.activeElement !== bizSearch){
+          bizList.classList.add('hidden');
+          bizList.style.display='none';
+        }
+      }, 300);
+    }
+  }
+  
+  // Remove old listeners by cloning
+  const newSearch = bizSearch.cloneNode(true);
+  bizSearch.parentNode.replaceChild(newSearch, bizSearch);
+  
+  const s = document.getElementById('bizSearch');
+  s.addEventListener('focus', showBizList);
+  s.addEventListener('click', showBizList);
+  s.addEventListener('input', function(){
+    showBizList();
+  });
+  
+  // Hide when clicking outside
+  document.addEventListener('click', function(e){
+    if(!e.target.closest('#bizSearch') && !e.target.closest('#bizList') && !e.target.closest('#selectedBiz')){
+      const bL = document.getElementById('bizList');
+      if(bL){
+        bL.classList.add('hidden');
+        bL.style.display='none';
+      }
+    }
+  });
 })();
 </script>
 
