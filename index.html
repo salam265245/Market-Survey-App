@@ -52,6 +52,35 @@ input::placeholder{color:#bbb;font-weight:400;opacity:0.7;}
 
 </head>
 <body>
+<script>
+// IMMEDIATE ANTI-FLICKER: hide auth if already logged in, restore page synchronously
+(function(){
+  try{
+    var email = localStorage.getItem('currentUserEmail');
+    if(email){
+      var authEl = document.getElementById('authScreen');
+      if(authEl) authEl.style.display='none';
+    }
+    var savedPage = localStorage.getItem('currentPage');
+    if(savedPage){
+      var pages = document.querySelectorAll('.page');
+      // defer page switch until pages exist - if not yet parsed, will be handled again later
+      if(pages.length>0){
+        pages.forEach(function(x){x.classList.remove('active');});
+        var t=document.getElementById('page-'+savedPage);
+        if(t) t.classList.add('active');
+        var navs=document.querySelectorAll('.nav-btn');
+        if(navs.length>0){
+          navs.forEach(function(b){b.classList.remove('active');});
+          var btn=document.querySelector('[data-page="'+savedPage+'"]');
+          if(btn) btn.classList.add('active');
+        }
+      }
+    }
+  }catch(e){}
+})();
+</script>
+
 
 <div id="authScreen" style="position:fixed;inset:0;z-index:999999;background:#faf9f6;display:flex;flex-direction:column;padding:16px;overflow:auto;">
   <div style="max-width:400px;margin:20px auto 0;width:100%;">
@@ -107,6 +136,34 @@ input::placeholder{color:#bbb;font-weight:400;opacity:0.7;}
 <div class="lang-toggle" id="langToggle"><div class="lang-opt" data-lang="en">EN</div><div class="lang-opt active" data-lang="bn">BN</div></div>
 </div>
 
+
+<script>
+// Second stage anti-flicker right after authScreen parsed
+(function(){
+  try{
+    var email=localStorage.getItem('currentUserEmail');
+    if(email){
+      var a=document.getElementById('authScreen');
+      if(a) a.style.display='none';
+    } else {
+      // If not logged in, ensure auth visible and hide main pages flicker
+      var a=document.getElementById('authScreen');
+      if(a) a.style.display='flex';
+    }
+    var saved=localStorage.getItem('currentPage');
+    if(saved){
+      var t=document.getElementById('page-'+saved);
+      if(t && !t.classList.contains('active')){
+        document.querySelectorAll('.page').forEach(function(x){x.classList.remove('active');});
+        document.querySelectorAll('.nav-btn').forEach(function(b){b.classList.remove('active');});
+        t.classList.add('active');
+        var b=document.querySelector('[data-page="'+saved+'"]');
+        if(b) b.classList.add('active');
+      }
+    }
+  }catch(e){}
+})();
+</script>
 <div id="page-home" class="page active p-4 space-y-4">
 <div class="bg-white rounded-2xl border p-5"><div class="flex justify-between"><h2 class="font-bold">🏠 ড্যাশবোর্ড</h2><span id="draftStatus"></span></div><div class="grid grid-cols-2 gap-3 mt-3"><div class="bg-blue-50 p-4 rounded-xl"><p id="totalSurveys" class="text-xl font-bold">0</p><p class="text-xs">মোট সার্ভে</p></div><div class="bg-green-50 p-4 rounded-xl"><p id="todaySurveys" class="text-xl font-bold">0</p><p class="text-xs">আজকের</p></div></div><div id="draftBox" class="hidden mt-4 bg-amber-50 border rounded-xl p-3"><p class="font-bold text-sm">📝 খসড়া / Draft</p><p id="draftName" class="text-xs mt-1"></p><button id="continueDraftBtn" class="mt-2 bg-[#2b2b2b] text-white px-4 py-2 rounded-full text-xs">Continue Draft</button></div></div>
 <div class="bg-white rounded-2xl border p-4"><h3 class="font-bold text-sm">সাম্প্রতিক</h3><div id="recentList" class="mt-2 space-y-2"></div></div>
@@ -526,17 +583,18 @@ function switchPage(p){
   try{
     var savedPage=localStorage.getItem('currentPage');
     if(savedPage){
-      setTimeout(function(){
         var t=document.getElementById('page-'+savedPage);
         if(t){
-          document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));
-          document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
-          t.classList.add('active');
-          var btn=document.querySelector('[data-page="'+savedPage+'"]');
-          if(btn)btn.classList.add('active');
-          if(savedPage==='history'||savedPage==='home'){if(typeof loadSurveysNew==='function')loadSurveysNew();}
+          // Only switch if not already active to avoid flicker
+          if(!t.classList.contains('active')){
+            document.querySelectorAll('.page').forEach(function(x){x.classList.remove('active');});
+            document.querySelectorAll('.nav-btn').forEach(function(b){b.classList.remove('active');});
+            t.classList.add('active');
+            var btn=document.querySelector('[data-page="'+savedPage+'"]');
+            if(btn)btn.classList.add('active');
+            if(savedPage==='history'||savedPage==='home'){if(typeof loadSurveysNew==='function')loadSurveysNew();}
+          }
         }
-      }, 100);
     }
   }catch(e){}
 })();
@@ -838,7 +896,7 @@ document.getElementById('centerAdd').addEventListener('click',()=>{editIndex=nul
 document.getElementById('langToggle').addEventListener('click',e=>{const opt=e.target.closest('.lang-opt');if(!opt) return;currentLang=opt.dataset.lang;applyLang();loadProfile();});
 document.getElementById('ownershipType').addEventListener('change',e=>{if(e.target.value==='2'){document.getElementById('owner2Box').classList.remove('hidden');document.getElementById('familyExpPerson2').classList.remove('hidden');document.getElementById('otherIncomePerson2').classList.remove('hidden');document.getElementById('savingsPerson2').classList.remove('hidden');document.getElementById('personalAssetPerson2').classList.remove('hidden');document.getElementById('owner1Pct').value=50;document.getElementById('owner2Pct').value=50;}else{document.getElementById('owner2Box').classList.add('hidden');document.getElementById('familyExpPerson2').classList.add('hidden');document.getElementById('otherIncomePerson2').classList.add('hidden');document.getElementById('savingsPerson2').classList.add('hidden');document.getElementById('personalAssetPerson2').classList.add('hidden');document.getElementById('owner1Pct').value=100;}saveDraft();});
 document.querySelectorAll('#surveyForm input, #surveyForm textarea, #surveyForm select').forEach(inp=>{inp.addEventListener('input',()=>{calcAll();saveDraft();});});
-document.querySelectorAll('.secSaveBtn').forEach(btn=>{btn.addEventListener('click',()=>{saveDraft();btn.textContent='✓ Saved';btn.style.background='#10b981';setTimeout(()=>{btn.textContent='Save';btn.style.background='#c9a86a';},1500);const toast=document.createElement('div');toast.textContent=btn.dataset.sec+' saved';toast.className='fixed bottom-24 left-1/2 -translate-x-1/2 bg-[#2b2b2b] text-white px-4 py-2 rounded-full text-xs z-50';document.body.appendChild(toast);setTimeout(()=>toast.remove(),2000);});});
+document.querySelectorAll('.secSaveBtn').forEach(btn=>{btn.addEventListener('click',()=>{saveDraft();btn.textContent='✓ Saved';btn.style.background='#10b981';btn.style.color='white';btn.dataset.saved='1';const toast=document.createElement('div');toast.textContent=(btn.dataset.sec||'Section')+' saved';toast.className='fixed bottom-24 left-1/2 -translate-x-1/2 bg-[#2b2b2b] text-white px-4 py-2 rounded-full text-xs z-50';document.body.appendChild(toast);setTimeout(()=>toast.remove(),1800);});});
 document.getElementById('saveProfileBtn').addEventListener('click',()=>{const p={name:document.getElementById('profileName').value,company:document.getElementById('profileCompany').value,designation:document.getElementById('profileDesignation').value,mobile:document.getElementById('profileMobile').value};localStorage.setItem('userProfile',JSON.stringify(p));loadProfile();alert(currentLang==='bn'?'প্রোফাইল সেভ হয়েছে':'Profile Saved');});
 document.getElementById('continueDraftBtn').addEventListener('click',()=>{document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById('page-add').classList.add('active');});
 document.getElementById('cancelEditBtn').addEventListener('click',()=>{editIndex=null;document.getElementById('editBanner').classList.add('hidden');document.getElementById('surveyForm').reset();localStorage.removeItem('draftSurvey');updateDraftUI();});
@@ -1314,24 +1372,82 @@ async function downloadPDF(idx){
 }
 
 
+async function generatePDFBlobForShare(s){
+ const container=document.getElementById('pdfReportContent');
+ container.innerHTML=buildReportHTML(s);
+ container.style.width='800px';
+ container.style.maxWidth='800px';
+ container.style.left='0';
+ container.style.position='absolute';
+ container.style.top='0';
+ container.style.background='white';
+ container.style.padding='20px';
+ container.style.fontFamily="'Noto Serif Bengali', sans-serif";
+ try{
+  if(document.fonts && document.fonts.ready){ await document.fonts.ready; }
+  await new Promise(r=>setTimeout(r, 300));
+  const canvas=await html2canvas(container,{
+    scale:1.2,
+    useCORS:true,
+    backgroundColor:'#ffffff',
+    logging:false
+  });
+  const imgData=canvas.toDataURL('image/jpeg', 0.70);
+  const {jsPDF}=window.jspdf;
+  const pdf=new jsPDF('p','mm','a4');
+  const pageW=pdf.internal.pageSize.getWidth();
+  const pageH=pdf.internal.pageSize.getHeight();
+  const imgW=pageW-10;
+  const imgH=(canvas.height*imgW)/canvas.width;
+  let hLeft=imgH;
+  let pos=5;
+  pdf.addImage(imgData,'JPEG',5,pos,imgW,imgH);
+  hLeft-=pageH;
+  while(hLeft>0){
+    pos=hLeft-imgH+5;
+    pdf.addPage();
+    pdf.addImage(imgData,'JPEG',5,pos,imgW,imgH);
+    hLeft-=pageH;
+  }
+  const fileName='Survey_'+(s.businessName||'Report').replace(/\s+/g,'_')+'_'+new Date().toISOString().slice(0,10)+'.pdf';
+  const blob=pdf.output('blob');
+  return {blob, fileName};
+ }finally{
+  container.style.left='-9999px';
+  container.style.position='fixed';
+  container.style.width='';
+ }
+}
+
 async function sharePDF(idx){
  const surveys=JSON.parse(localStorage.getItem('surveys')||'[]');
  const s=surveys[idx]; if(!s) return;
- if(!window.lastPDFBlob){
- await downloadPDF(idx);
- await new Promise(r=>setTimeout(r,1000));
- }
  try{
- const file=new File([window.lastPDFBlob], window.lastPDFFileName, {type:'application/pdf'});
- if(navigator.canShare && navigator.canShare({files:[file]})){
-  await navigator.share({files:[file], title:window.lastPDFFileName, text:'Market Survey Report - '+s.businessName});
- }else if(navigator.share){
-  await navigator.share({title:window.lastPDFFileName, text:'Market Survey Report - '+s.businessName+' - '+s.ownerName});
- }else{
-  alert('Sharing not supported. PDF Downloaded - share from Downloads folder.');
- }
+  let blob, fileName;
+  if(window.lastPDFBlob && window.lastPDFFileName){
+    blob=window.lastPDFBlob;
+    fileName=window.lastPDFFileName;
+  } else {
+    const gen=await generatePDFBlobForShare(s);
+    blob=gen.blob;
+    fileName=gen.fileName;
+    window.lastPDFBlob=blob;
+    window.lastPDFFileName=fileName;
+  }
+  const file=new File([blob], fileName, {type:'application/pdf'});
+  if(navigator.canShare && navigator.canShare({files:[file]})){
+   await navigator.share({files:[file], title:fileName, text:'Market Survey Report - '+s.businessName});
+  }else if(navigator.share){
+   await navigator.share({title:fileName, text:'Market Survey Report - '+s.businessName+' - '+s.ownerName});
+  }else{
+   // Fallback: if share not supported, trigger download only then
+   const url=URL.createObjectURL(blob);
+   const a=document.createElement('a');
+   a.href=url; a.download=fileName; a.click();
+   setTimeout(()=>URL.revokeObjectURL(url),2000);
+  }
  }catch(e){
- if(e.name!=='AbortError') alert('Share failed: '+e.message);
+  if(e.name!=='AbortError') alert('Share failed: '+e.message);
  }
 }
 
@@ -1915,6 +2031,59 @@ if('serviceWorker' in navigator){window.addEventListener('load',()=>{const b=new
 })();
 </script>
 
+
+<script>
+// --- FIX: Section Save buttons persistent green ---
+(function(){
+  function markSaved(btn){
+    try{
+      if(typeof saveDraft==='function') saveDraft();
+    }catch(e){}
+    btn.textContent='✓ Saved';
+    btn.style.background='#10b981';
+    btn.style.color='white';
+    btn.style.borderColor='#10b981';
+    btn.dataset.saved='1';
+    // toast
+    try{
+      const toast=document.createElement('div');
+      toast.textContent=(btn.dataset.sec||'Section')+' saved';
+      toast.style.cssText='position:fixed;bottom:96px;left:50%;transform:translateX(-50%);background:#2b2b2b;color:white;padding:8px 16px;border-radius:9999px;font-size:12px;z-index:99999;';
+      document.body.appendChild(toast);
+      setTimeout(()=>{try{toast.remove();}catch(e){}},1800);
+    }catch(e){}
+  }
+  // Delegated click - works even if previous listeners failed
+  document.addEventListener('click', function(e){
+    const btn=e.target.closest('.secSaveBtn');
+    if(!btn) return;
+    e.preventDefault();
+    e.stopPropagation();
+    markSaved(btn);
+  }, true);
+
+  // Also direct binding after load to ensure inline style override
+  function bindAll(){
+    document.querySelectorAll('.secSaveBtn').forEach(function(btn){
+      if(btn.dataset.boundFix) return;
+      btn.dataset.boundFix='1';
+      btn.addEventListener('click', function(ev){
+        ev.preventDefault();
+        ev.stopPropagation();
+        markSaved(btn);
+      });
+    });
+  }
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded', bindAll);
+  } else {
+    bindAll();
+  }
+  setTimeout(bindAll, 800);
+  setTimeout(bindAll, 2000);
+})();
+</script>
+
 </body>
 
 <script>
@@ -2302,6 +2471,59 @@ if('serviceWorker' in navigator){window.addEventListener('load',()=>{const b=new
       if(isVisible){ hideBizList(); }
     }
   });
+})();
+</script>
+
+
+<script>
+// --- FIX: Section Save buttons persistent green ---
+(function(){
+  function markSaved(btn){
+    try{
+      if(typeof saveDraft==='function') saveDraft();
+    }catch(e){}
+    btn.textContent='✓ Saved';
+    btn.style.background='#10b981';
+    btn.style.color='white';
+    btn.style.borderColor='#10b981';
+    btn.dataset.saved='1';
+    // toast
+    try{
+      const toast=document.createElement('div');
+      toast.textContent=(btn.dataset.sec||'Section')+' saved';
+      toast.style.cssText='position:fixed;bottom:96px;left:50%;transform:translateX(-50%);background:#2b2b2b;color:white;padding:8px 16px;border-radius:9999px;font-size:12px;z-index:99999;';
+      document.body.appendChild(toast);
+      setTimeout(()=>{try{toast.remove();}catch(e){}},1800);
+    }catch(e){}
+  }
+  // Delegated click - works even if previous listeners failed
+  document.addEventListener('click', function(e){
+    const btn=e.target.closest('.secSaveBtn');
+    if(!btn) return;
+    e.preventDefault();
+    e.stopPropagation();
+    markSaved(btn);
+  }, true);
+
+  // Also direct binding after load to ensure inline style override
+  function bindAll(){
+    document.querySelectorAll('.secSaveBtn').forEach(function(btn){
+      if(btn.dataset.boundFix) return;
+      btn.dataset.boundFix='1';
+      btn.addEventListener('click', function(ev){
+        ev.preventDefault();
+        ev.stopPropagation();
+        markSaved(btn);
+      });
+    });
+  }
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded', bindAll);
+  } else {
+    bindAll();
+  }
+  setTimeout(bindAll, 800);
+  setTimeout(bindAll, 2000);
 })();
 </script>
 
