@@ -438,42 +438,69 @@ input::placeholder{color:#bbb;font-weight:400;opacity:0.7;}
 </div>
 </div>
 
-<div id="developerCard" style="margin-top:20px;">
+<div id="developerCard" style="margin-top:24px; max-width:600px; margin-left:auto; margin-right:auto;">
   <!-- English Card - shown when EN active -->
-  <div id="devCardEN" style="background:white;border:1px solid #e8e8e8;border-radius:16px;padding:20px;margin-top:16px;">
-<div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;">
-<span style="font-size:22px;">💻</span><b style="font-size:18px;color:#111;">Developer</b>
+  <div id="devCardEN" style="display:none;">
+    <div style="background:white; border-radius:16px; border:1px solid #e8e8e8; box-shadow:0 2px 12px rgba(0,0,0,0.06); padding:14px 16px;">
+      <div style="font-family:system-ui, -apple-system, sans-serif; font-size:14px; line-height:1.35; color:#1a1a1a;">
+        <div style="margin:0; padding:2px 0; font-weight:700;">💻 Developer</div>
+        <div style="margin:0; padding:2px 0;">👤 Name: Md. Abdus Salam</div>
+        <div style="margin:0; padding:2px 0;">📍 Address: Bantra, Jalalabad, Kalaroa, Satkhira</div>
+        <div style="margin:0; padding:2px 0;">📞 Mobile: +8801737265245</div>
+        <div style="margin:0; padding:2px 0;">✉️ Email: salamwgp@gmail.com</div>
+      </div>
+    </div>
+  </div>
+  <!-- Bangla Card - shown when BN active -->
+  <div id="devCardBN" style="display:block;">
+    <div style="background:white; border-radius:16px; border:1px solid #e8e8e8; box-shadow:0 2px 12px rgba(0,0,0,0.06); padding:14px 16px;">
+      <div style="font-family:system-ui, -apple-system, 'Noto Sans Bengali', sans-serif; font-size:14px; line-height:1.35; color:#1a1a1a;">
+        <div style="margin:0; padding:2px 0; font-weight:700;">💻 ডেভেলপার</div>
+        <div style="margin:0; padding:2px 0;">👤 নাম: মোঃ আব্দুস ছালাম</div>
+        <div style="margin:0; padding:2px 0;">📍 ঠিকানা: বাঁটরা, জালালাবাদ, কলারোয়া, সাতক্ষীরা</div>
+        <div style="margin:0; padding:2px 0;">📞 মোবাইল: +8801737265245</div>
+        <div style="margin:0; padding:2px 0;">✉️ ইমেইল: salamwgp@gmail.com</div>
+      </div>
+    </div>
+  </div>
 </div>
-<div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
-<span style="font-size:20px;">👤</span><span style="font-size:16px;font-weight:600;">Md. Abdus Salam</span>
-</div>
-<div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
-<span style="font-size:20px;">📍</span><span style="font-size:15px;">Bantra, Jalalabad, Kalaroa, Satkhira</span>
-</div>
-<div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
-<span style="font-size:20px;">📞</span><span style="font-size:15px;">Mobile: +8801737265245</span>
-</div>
-<div style="display:flex;align-items:center;gap:12px;">
-<span style="font-size:20px;">✉️</span><span style="font-size:15px;">Email: salamwgp@gmail.com</span>
-</div>
+<script>
+// Developer card language switch - permanent attach
+(function(){
+  function updateDevCard(){
+    const active = document.querySelector('.lang-opt.active');
+    const lang = active ? active.dataset.lang : 'bn';
+    const enDiv = document.getElementById('devCardEN');
+    const bnDiv = document.getElementById('devCardBN');
+    if(!enDiv || !bnDiv) return;
+    if(lang==='en'){
+      enDiv.style.display='block';
+      bnDiv.style.display='none';
+    } else {
+      enDiv.style.display='none';
+      bnDiv.style.display='block';
+    }
+  }
+  // Initial
+  setTimeout(updateDevCard, 500);
+  // On click
+  document.addEventListener('click', function(e){
+    if(e.target.classList.contains('lang-opt')){
+      setTimeout(updateDevCard, 100);
+    }
+  });
+  // Observer for lang toggle
+  const toggle = document.getElementById('langToggle');
+  if(toggle){
+    const obs = new MutationObserver(updateDevCard);
+    obs.observe(toggle, {attributes:true, childList:true, subtree:true});
+  }
+})();
+</script>
+
+<!-- Backup/Clear buttons removed per request -->
 </div>
 
-<div id="devCardBN" style="background:white;border:1px solid #e8e8e8;border-radius:16px;padding:20px;margin-top:16px;">
-<div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;">
-<span style="font-size:22px;">💻</span><b style="font-size:18px;color:#111;">ডেভেলপার</b>
-</div>
-<div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
-<span style="font-size:20px;">👤</span><span style="font-size:16px;font-weight:600;">মোঃ আব্দুস ছালাম</span>
-</div>
-<div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
-<span style="font-size:20px;">📍</span><span style="font-size:15px;">বাঁটরা, জালালাবাদ, কলারোয়া, সাতক্ষীরা</span>
-</div>
-<div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
-<span style="font-size:20px;">📞</span><span style="font-size:15px;">যোগাযোগ: +8801737265245</span>
-</div>
-<div style="display:flex;align-items:center;gap:12px;">
-<span style="font-size:20px;">✉️</span><span style="font-size:15px;">ইমেইল: salamwgp@gmail.com</span>
-</div>
 </div>
 
 <div class="bottom-nav">
@@ -1217,21 +1244,16 @@ async function viewPDF(idx){
  if(!modal){
    modal=document.createElement('div');
    modal.id='pdfViewModal';
-   modal.style.cssText='position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,0.75);display:flex;flex-direction:column;padding:10px;';
-   modal.innerHTML='<div style="display:flex;justify-content:space-between;align-items:center;background:white;padding:12px 16px;border-radius:12px 12px 0 0;border-bottom:1px solid #eee;"><h3 style="font-weight:800;font-size:14px;">📄 PDF View</h3><button onclick="document.getElementById(\'pdfViewModal\').style.display=\'none\'" style="background:#2b2b2b;color:white;padding:8px 20px;border-radius:20px;font-size:12px;font-weight:700;">✕ Close</button></div><div id="pdfViewContent" style="flex:1;overflow:auto;background:#f8f8f8;padding:10px;border-radius:0 0 12px 12px;"></div>';
+   modal.style.cssText='position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,0.7);display:flex;flex-direction:column;padding:10px;';
+   modal.innerHTML='<div style="display:flex;justify-content:space-between;align-items:center;background:white;padding:12px;border-radius:12px 12px 0 0;"><h3 style="font-weight:800;">PDF View</h3><div style="display:flex;gap:8px;"><button onclick="document.getElementById(\'pdfViewModal\').style.display=\'none\'" style="background:#2b2b2b;color:white;padding:6px 16px;border-radius:20px;font-size:12px;">Close</button></div></div><div id="pdfViewContent" style="flex:1;overflow:auto;background:white;padding:20px;border-radius:0 0 12px 12px;"></div>';
    document.body.appendChild(modal);
  }
- // Update title with current business name
- const titleEl=modal.querySelector('h3');
- if(titleEl) titleEl.textContent='📄 '+ (s.businessName||'PDF View');
  modal.style.display='flex';
  const viewContent=document.getElementById('pdfViewContent');
  if(viewContent){
-   viewContent.innerHTML='<div style="background:white;border-radius:12px;overflow:hidden;">'+buildReportHTML(s)+'</div>';
+   viewContent.innerHTML=buildReportHTML(s);
    viewContent.scrollTop=0;
  }
- // Close on background click
- modal.onclick=function(e){ if(e.target===modal) modal.style.display='none'; };
 }
 
 
@@ -1355,7 +1377,7 @@ function loadSurveysNew(){
   const origIdx=surveys.length-1-revIdx;
   const div=document.createElement('div');
   div.className='border rounded-xl p-3 bg-gray-50 text-sm flex justify-between items-center';
-  div.innerHTML='<div><b>'+s.businessName+'</b><br><span class="text-xs">'+s.ownerName+' | '+(s.mobile||'')+'</span><br><span class="text-[10px] text-gray-500">'+new Date(s.createdAt).toLocaleString('en-BD')+'</span></div><div class="flex gap-1"><button id="pdfBtn_'+origIdx+'" onclick="downloadPDF('+origIdx+')" class="bg-blue-600 text-white px-3 py-2 rounded-full text-xs font-bold">👁️ View</button><button id="pdfBtn_'+origIdx+'" onclick="downloadPDF('+origIdx+')" class="bg-[#2b2b2b] text-white px-3 py-2 rounded-full text-xs font-bold">📥 PDF Download</button><button onclick="sharePDF('+origIdx+')" class="bg-[#c9a86a] text-white px-4 py-2 rounded-full text-xs font-bold">Share</button></div>';
+  div.innerHTML='<div><b>'+s.businessName+'</b><br><span class="text-xs">'+s.ownerName+' | '+(s.mobile||'')+'</span><br><span class="text-[10px] text-gray-500">'+new Date(s.createdAt).toLocaleString('en-BD')+'</span></div><div class="flex gap-1"><button id="pdfViewBtn_'+origIdx+'" onclick="viewPDF('+origIdx+')" class="bg-blue-600 text-white px-3 py-2 rounded-full text-xs font-bold">👁️ View</button><button id="pdfBtn_'+origIdx+'" onclick="downloadPDF('+origIdx+')" class="bg-[#2b2b2b] text-white px-3 py-2 rounded-full text-xs font-bold">📥 PDF Download</button><button onclick="sharePDF('+origIdx+')" class="bg-[#c9a86a] text-white px-4 py-2 rounded-full text-xs font-bold">Share</button></div>';
   pdfList.appendChild(div);
  });
  }
