@@ -1329,143 +1329,136 @@ async function viewPDF(idx){
 
 
 
-async function downloadPDF(idx){
- const surveys=JSON.parse(localStorage.getItem('surveys')||'[]');
- const s=surveys[idx]; if(!s) return;
- const container=document.getElementById('pdfReportContent');
- container.innerHTML=buildReportHTML(s);
- container.style.width='800px';
- container.style.maxWidth='800px';
- container.style.left='0';
- container.style.position='absolute';
- container.style.top='0';
- container.style.background='white';
- container.style.padding='20px';
- container.style.fontFamily="'Noto Serif Bengali', sans-serif";
- const btn=document.getElementById('pdfBtn_'+idx);
- if(btn) btn.textContent='Generating...';
- try{
-  if(document.fonts && document.fonts.ready){ await document.fonts.ready; }
-  await new Promise(r=>setTimeout(r, 400));
-  const canvas=await html2canvas(container,{
-    scale: 0.5,
-    useCORS:true,
-    backgroundColor:'#ffffff',
-    logging:false
-  });
-  const imgData=canvas.toDataURL('image/jpeg', 0.70);
-  const {jsPDF}=window.jspdf;
-  const doc=new jsPDF('p','mm','a4');
-  const pageW=doc.internal.pageSize.getWidth();
-  const pageH=doc.internal.pageSize.getHeight();
-  const imgW=pageW-10;
-  const imgH=(canvas.height*imgW)/canvas.width;
-  let hLeft=imgH;
-  let pos=5;
-  doc.addImage(imgData,'JPEG',5,pos,imgW,imgH);
-  hLeft-=pageH;
-  while(hLeft>0){
-    pos=hLeft-imgH+5;
-    doc.addPage();
-    doc.addImage(imgData,'JPEG',5,pos,imgW,imgH);
-    hLeft-=pageH;
-  }
-  const fileName=`Market_Survey_${(s.businessName||'Report').replace(/\s+/g,'_')}_${Date.now()}.pdf`;
-  doc.save(fileName);
-  try{ window.lastPDFBlob=doc.output('blob'); window.lastPDFFileName=fileName; }catch(e){}
-  if(btn) btn.textContent='✓ Downloaded';
-  setTimeout(()=>{if(btn) btn.textContent='PDF Download';},2500);
- }catch(e){
-  console.error('PDF Failed:', e);
-  if(btn) btn.textContent='Failed';
- }finally{
-  container.style.left='-9999px';
-  container.style.position='fixed';
-  container.style.width='';
- }
+
+
+
+
+
+
+
+
+
+
+// SHARED PDF BUILDER - Used by BOTH Report and History (Same PDF)
+function buildMarketSurveyPDFContent(s){
+  return buildReportHTML(s);
 }
 
+async function generatePDFFromSurvey(s){
+  const container=document.getElementById('pdfReportContent');
+  container.innerHTML=buildMarketSurveyPDFContent(s);
+  container.style.width='800px';
+  container.style.maxWidth='800px';
+  container.style.left='0';
+  container.style.position='absolute';
+  container.style.top='0';
+  container.style.background='white';
+  container.style.padding='20px';
+  container.style.fontFamily="'Noto Serif Bengali', sans-serif";
+  try{
+    if(document.fonts && document.fonts.ready){ await document.fonts.ready; }
+    await new Promise(r=>setTimeout(r, 400));
+    // Increased scale to 1.0 and quality to 0.85 for 300KB+ size
+    const canvas=await html2canvas(container,{
+      scale: 1.0,
+      useCORS:true,
+      backgroundColor:'#ffffff',
+      logging:false,
+      allowTaint:true
+    });
+    const imgData=canvas.toDataURL('image/jpeg', 0.85);
+    const {jsPDF}=window.jspdf;
+    const doc=new jsPDF('p','mm','a4');
+    doc.setFont('helvetica','normal');
+    const pageW=doc.internal.pageSize.getWidth();
+    const pageH=doc.internal.pageSize.getHeight();
+    const imgW=pageW-10;
+    const imgH=(canvas.height*imgW)/canvas.width;
+    let hLeft=imgH;
+    let pos=5;
+    doc.addImage(imgData,'JPEG',5,pos,imgW,imgH);
+    hLeft-=pageH;
+    while(hLeft>0){
+      pos=hLeft-imgH+5;
+      doc.addPage();
+      doc.addImage(imgData,'JPEG',5,pos,imgW,imgH);
+      hLeft-=pageH;
+    }
+    // Add footer with developer info to ensure size and consistency
+    try{
+      const totalPages = doc.internal.getNumberOfPages();
+      for(let i=1;i<=totalPages;i++){
+        doc.setPage(i);
+        doc.setFontSize(7);
+        doc.setTextColor(140,140,140);
+        doc.text('Market Survey - Md. Abdus Salam - +8801737265245 | Page '+i+'/'+totalPages, 10, pageH-3);
+      }
+    }catch(e){}
+    const fileName=`Market_Survey_${(s.businessName||'Report').replace(/\s+/g,'_')}_${Date.now()}.pdf`;
+    return {doc, fileName};
+  }finally{
+    container.style.left='-9999px';
+    container.style.position='fixed';
+    container.style.width='';
+  }
+}
 
+async function downloadPDF(idx){
+  const surveys=JSON.parse(localStorage.getItem('surveys')||'[]');
+  const s=surveys[idx]; if(!s) return;
+  const btn=document.getElementById('pdfBtn_'+idx);
+  if(btn) btn.textContent='Generating...';
+  try{
+    const {doc, fileName}=await generatePDFFromSurvey(s);
+    const blob=doc.output('blob');
+    // Ensure size >=300KB check (for debug, not blocking)
+    console.log('PDF Blob size:', Math.round(blob.size/1024)+'KB');
+    doc.save(fileName);
+    try{ window.lastPDFBlob=blob; window.lastPDFFileName=fileName; }catch(e){}
+    if(btn) btn.textContent='✓ Downloaded';
+    setTimeout(()=>{if(btn) btn.textContent='PDF Download';},2500);
+  }catch(e){
+    console.error('PDF Failed:', e);
+    if(btn) btn.textContent='Failed';
+  }
+}
 
 async function generatePDFBlobForShare(s){
- const container=document.getElementById('pdfReportContent');
- container.innerHTML=buildReportHTML(s);
- container.style.width='800px';
- container.style.maxWidth='800px';
- container.style.left='0';
- container.style.position='absolute';
- container.style.top='0';
- container.style.background='white';
- container.style.padding='20px';
- container.style.fontFamily="'Noto Serif Bengali', sans-serif";
- try{
-  if(document.fonts && document.fonts.ready){ await document.fonts.ready; }
-  await new Promise(r=>setTimeout(r, 300));
-  const canvas=await html2canvas(container,{
-    scale: 0.5,
-    useCORS:true,
-    backgroundColor:'#ffffff',
-    logging:false
-  });
-  const imgData=canvas.toDataURL('image/jpeg', 0.70);
-  const {jsPDF}=window.jspdf;
-  const doc=new jsPDF('p','mm','a4');
-  const pageW=doc.internal.pageSize.getWidth();
-  const pageH=doc.internal.pageSize.getHeight();
-  const imgW=pageW-10;
-  const imgH=(canvas.height*imgW)/canvas.width;
-  let hLeft=imgH;
-  let pos=5;
-  doc.addImage(imgData,'JPEG',5,pos,imgW,imgH);
-  hLeft-=pageH;
-  while(hLeft>0){
-    pos=hLeft-imgH+5;
-    doc.addPage();
-    doc.addImage(imgData,'JPEG',5,pos,imgW,imgH);
-    hLeft-=pageH;
-  }
-  const fileName=`Market_Survey_${(s.businessName||'Report').replace(/\s+/g,'_')}_${Date.now()}.pdf`;
+  const {doc, fileName}=await generatePDFFromSurvey(s);
   const blob=doc.output('blob');
   return {blob, fileName};
- }finally{
-  container.style.left='-9999px';
-  container.style.position='fixed';
-  container.style.width='';
- }
 }
-
-
 
 async function sharePDF(idx){
- const surveys=JSON.parse(localStorage.getItem('surveys')||'[]');
- const s=surveys[idx]; if(!s) return;
- try{
-  let blob, fileName;
-  if(window.lastPDFBlob && window.lastPDFFileName){
-    blob=window.lastPDFBlob;
-    fileName=window.lastPDFFileName;
-  } else {
-    const gen=await generatePDFBlobForShare(s);
-    blob=gen.blob;
-    fileName=gen.fileName;
-    window.lastPDFBlob=blob;
-    window.lastPDFFileName=fileName;
+  const surveys=JSON.parse(localStorage.getItem('surveys')||'[]');
+  const s=surveys[idx]; if(!s) return;
+  try{
+    let blob, fileName;
+    if(window.lastPDFBlob && window.lastPDFFileName){
+      blob=window.lastPDFBlob;
+      fileName=window.lastPDFFileName;
+    } else {
+      const gen=await generatePDFBlobForShare(s);
+      blob=gen.blob;
+      fileName=gen.fileName;
+      window.lastPDFBlob=blob;
+      window.lastPDFFileName=fileName;
+    }
+    console.log('Share PDF size:', Math.round(blob.size/1024)+'KB');
+    const file=new File([blob], fileName, {type:'application/pdf'});
+    if(navigator.canShare && navigator.canShare({files:[file]})){
+      await navigator.share({files:[file], title:fileName, text:'Market Survey Report - '+s.businessName});
+    }else{
+      const url=URL.createObjectURL(blob);
+      window.open(url);
+      setTimeout(()=>URL.revokeObjectURL(url), 5000);
+    }
+  }catch(e){
+    if(e.name!=='AbortError'){
+      console.error('Share failed:', e);
+    }
   }
-  const file=new File([blob], fileName, {type:'application/pdf'});
-  if(navigator.canShare && navigator.canShare({files:[file]})){
-   await navigator.share({files:[file], title:fileName, text:'Market Survey Report - '+s.businessName});
-  }else{
-   const url=URL.createObjectURL(blob);
-   window.open(url);
-   setTimeout(()=>URL.revokeObjectURL(url), 5000);
-  }
- }catch(e){
-  if(e.name!=='AbortError') {
-    console.error('Share failed:', e);
-  }
- }
 }
-
 
 
 function loadSurveysNew(){
