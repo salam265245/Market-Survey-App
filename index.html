@@ -50,6 +50,33 @@ input::placeholder{color:#bbb;font-weight:400;opacity:0.7;}
 }
 </style>
 
+
+<style>
+#stickyHeader {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 9999;
+  background: #FFFEF7;
+}
+body {
+  padding-top: 145px;
+}
+#bottomNav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 9999;
+}
+.page-content {
+  overflow-y: auto;
+  height: calc(100vh - 145px - 75px);
+  -webkit-overflow-scrolling: touch;
+}
+</style>
+
 </head>
 <body>
 <script>
@@ -120,7 +147,7 @@ input::placeholder{color:#bbb;font-weight:400;opacity:0.7;}
 
 <div class="w-full mx-auto lg:max-w-full">
 
-<div class="bg-[#fffcf5] px-4 py-4 flex justify-between items-center border-b border-[#f0e6d3]">
+<div id="stickyHeader" class="bg-[#fffcf5] px-4 py-4 flex justify-between items-center border-b border-[#f0e6d3]">
 <div class="flex items-center gap-3">
 <div class="w-12 h-12 rounded-full bg-[#2b2b2b] flex items-center justify-center text-white font-bold text-lg border-2 border-[#c9a86a]"><img id="headerAvatarImg" src="" class="w-10 h-10 rounded-full object-cover border-2 border-[#c9a86a] hidden"><span id="avatarInitials" style="display:none !important;"></span></div>
 <div>
@@ -560,7 +587,7 @@ input::placeholder{color:#bbb;font-weight:400;opacity:0.7;}
 
 </div>
 
-<div class="bottom-nav">
+<div id="bottomNav" class="bottom-nav">
 <button data-page="home" class="nav-btn active" onclick="switchPage('home')"><span>🏠</span><span id="navHome">হোম</span></button>
 <button data-page="history" class="nav-btn" onclick="switchPage('history')"><span>🕒</span><span id="navHistory">ইতিহাস</span></button>
 <div class="center-plus" id="centerAdd" onclick="switchPage('add')">+</div>
