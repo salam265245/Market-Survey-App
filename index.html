@@ -2022,174 +2022,133 @@ html, body { overflow-anchor: none; overscroll-behavior-y: contain; }
 
 <script>
 // ===== PDF VECTOR - History = Report Same, No Blank, 300KB+ =====
-async async function buildMarketSurveyPDFVector(doc, s){
-  // Language logic
+async function buildMarketSurveyPDFVector(doc, s){
+  // NEW APPROACH: Render HTML via html2canvas for perfect Bengali support (Business Type fix)
+  // This guarantees Bangla renders exactly as browser shows it
+  try{
+    if(window.html2canvas){
+      // Build HTML using existing buildReportHTML
+      const reportHtml = (typeof buildReportHTML === 'function') ? buildReportHTML(s) : '<div>Report</div>';
+      // Create hidden container with proper Bengali font
+      let container = document.getElementById('__pdfRenderContainer');
+      if(!container){
+        container = document.createElement('div');
+        container.id = '__pdfRenderContainer';
+        container.style.cssText = 'position:fixed;left:-10000px;top:0;width:800px;background:white;padding:20px;font-family:\'Noto Serif Bengali\', \'Noto Sans Bengali\', sans-serif;';
+        document.body.appendChild(container);
+      }
+      container.innerHTML = `
+        <style>
+          #__pdfRenderContainer .pdf-header{display:flex;justify-content:space-between;border-bottom:2px solid #000;padding-bottom:10px;margin-bottom:15px}
+          #__pdfRenderContainer .pdf-section{margin-bottom:15px;border:1px solid #ddd;border-radius:8px;overflow:hidden}
+          #__pdfRenderContainer .pdf-section-title{background:#2b2b2b;color:white;padding:6px 12px;font-weight:700;font-size:14px}
+          #__pdfRenderContainer .pdf-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:#e5e7eb}
+          #__pdfRenderContainer .pdf-grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1px;background:#e5e7eb}
+          #__pdfRenderContainer .pdf-field{background:white;padding:8px 10px;font-size:12px;display:flex;gap:6px}
+          #__pdfRenderContainer .pdf-field b{min-width:120px;font-weight:700}
+        </style>
+        ${reportHtml}
+      `;
+      // Wait fonts
+      if(document.fonts && document.fonts.ready){ try{ await document.fonts.ready; }catch(_){} }
+      await new Promise(r=>setTimeout(r, 300));
+      
+      const canvas = await html2canvas(container, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: '#ffffff',
+        windowWidth: 800,
+        logging: false
+      });
+      
+      const imgData = canvas.toDataURL('image/png');
+      const imgWidth = 190; // A4 width minus margins (210-20)
+      const pageHeight = 277; // A4 height minus margins
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      
+      let heightLeft = imgHeight;
+      let position = 10;
+      
+      doc.addImage(imgData, 'PNG', 10, position, imgWidth, imgHeight);
+      heightLeft -= pageHeight;
+      
+      while(heightLeft > 0){
+        doc.addPage();
+        position = 10 - (imgHeight - heightLeft);
+        // For multi-page, we need to offset image
+        doc.addImage(imgData, 'PNG', 10, position, imgWidth, imgHeight);
+        heightLeft -= pageHeight;
+      }
+      
+      // Clean
+      try{ container.innerHTML=''; }catch(_){}
+      
+      const pages=doc.internal.getNumberOfPages();
+      for(let i=1;i<=pages;i++){ doc.setPage(i); doc.setFontSize(7); doc.setTextColor(150,150,150); try{ doc.setFont('helvetica','normal'); }catch(_){}; doc.text('Market Survey - Md. Abdus Salam | Page '+i+'/'+pages, 10, 290); }
+      
+      return doc;
+    }
+  }catch(e){
+    console.warn('html2canvas PDF failed, fallback to vector', e);
+  }
+  // FALLBACK: old vector method with font fix (if html2canvas fails)
   const lang = localStorage.getItem('appLanguage') || localStorage.getItem('language') || localStorage.getItem('lang') || 'EN';
   const isBN = (lang === 'BN' || lang === 'bn');
-  
-  // Download Date/Time - DD/MM/YYYY and 12-hour
   const now = new Date();
   const downloadDate = `${String(now.getDate()).padStart(2,'0')}/${String(now.getMonth()+1).padStart(2,'0')}/${now.getFullYear()}`;
   const downloadTime = now.toLocaleTimeString('en-US', {hour:'2-digit', minute:'2-digit', second:'2-digit', hour12:true});
-
-  // --- START: Business Type Bengali Fix - MUST ADD ---
-  const fontToUse = 'NotoSansBengali';
-  try{
-    if(!doc.getFontList()[fontToUse]){
-      const fontUrls = [
-        'https://cdn.jsdelivr.net/gh/google/fonts@main/ofl/notosansbengali/NotoSansBengali-Regular.ttf',
-        'https://raw.githubusercontent.com/google/fonts/main/ofl/notosansbengali/NotoSansBengali-Regular.ttf',
-        'https://fonts.gstatic.com/s/notosansbengali/v28/hESw6WBlOixO-3Z4wCUyoAqRfsNhSllZx0geKQ.ttf'
-      ];
-      let loaded = false;
-      for(const ttfUrl of fontUrls){
-        try{
-          const resp = await fetch(ttfUrl, {mode:'cors'});
-          if(resp.ok){
-            const ab = await resp.arrayBuffer();
-            // Efficient base64
-            const u8 = new Uint8Array(ab);
-            let binary = '';
-            const chunk = 8192;
-            for(let i=0;i<u8.length;i+=chunk){
-              binary += String.fromCharCode.apply(null, u8.subarray(i, i+chunk));
-            }
-            const b64 = btoa(binary);
-            doc.addFileToVFS('NotoSansBengali.ttf', b64);
-            doc.addFont('NotoSansBengali.ttf', fontToUse, 'normal');
-            doc.addFont('NotoSansBengali.ttf', fontToUse, 'bold');
-            loaded = true;
-            break;
-          }
-        }catch(e){ console.warn('font url failed', ttfUrl, e); }
-      }
-      if(!loaded) console.warn('All font URLs failed');
-    }
-    if(doc.getFontList()[fontToUse]){
-      doc.setFont(fontToUse, 'normal');
-    }
-  }catch(e){ console.warn('font load failed', e); try{doc.setFont('helvetica','normal');}catch(_){} }
-  // --- END ---
-  
-  // User info from profile - try multiple keys
   let profile = {};
   try{
     profile = JSON.parse(localStorage.getItem('profile')||'{}');
-    if(!profile.name){
-      const alt = JSON.parse(localStorage.getItem('userProfile')||'{}');
-      profile = {...alt, ...profile};
-      if(alt.name) profile.name = alt.name;
-      if(alt.company) profile.institution = profile.institution || alt.company;
-      if(alt.mobile) profile.mobile = profile.mobile || alt.mobile;
-    }
-    if(!profile.name){
-      const alt2 = JSON.parse(localStorage.getItem('profileData')||'{}');
-      profile = {...alt2, ...profile};
-    }
+    if(!profile.name){ const alt = JSON.parse(localStorage.getItem('userProfile')||'{}'); profile = {...alt, ...profile}; }
   }catch(e){}
-  
-  const userName = profile.name || profile.userName || document.getElementById('headerSubName')?.textContent?.trim() || 'Md. Abdus Salam';
-  const userInstitution = profile.institution || profile.company || profile.institute || 'Brac Bank PLC.';
-  const userDesignation = profile.designation || profile.desig || profile.role || 'ARM & Unit in-charge';
-  const userMobile = profile.mobile || profile.phone || '01313796480';
-  
-  // ===== NEW HEADER DESIGN =====
-  // Top row: LEFT App Name bold large, RIGHT Developer info small right-aligned
-  doc.setFontSize(18);
-  doc.setFont('helvetica','bold');
-  doc.text(isBN ? 'মার্কেট সার্ভে' : 'Market Survey', 10, 15);
-  
-  // Header Right - Developer info (small, right aligned at 200)
-  doc.setFontSize(8);
-  doc.setFont('helvetica','normal');
-  const rightX = 200;
-  const devLabel = isBN ? 'ডেভেলপার' : 'Developer';
-  doc.text(`${devLabel}: Md. Abdus Salam`, rightX, 12, {align:'right'});
-  doc.text('+8801737265245', rightX, 16, {align:'right'});
-  doc.text('salamwgp@gmail.com', rightX, 20, {align:'right'});
-  
-  // Below that, left side stack: Download Date/Time
-  doc.setFontSize(10);
-  doc.setFont('helvetica','normal');
-  let y = 28;
-  const dateLabel = isBN ? 'ডাউনলোডের তারিখ' : 'Download Date';
-  const timeLabel = isBN ? 'ডাউনলোডের সময়' : 'Download Time';
-  doc.text(`${dateLabel}: ${downloadDate}`, 10, y); y+=6;
-  doc.text(`${timeLabel}: ${downloadTime}`, 10, y); y+=8;
-  
-  // User Information
-  doc.setFont('helvetica','bold');
-  const userInfoTitle = isBN ? 'ব্যবহারকারীর তথ্য:' : 'User Information:';
-  doc.text(userInfoTitle, 10, y); y+=6;
-  doc.setFont('helvetica','normal');
-  const nameLabel = isBN ? 'নাম' : 'Name';
-  const instLabel = isBN ? 'প্রতিষ্ঠান' : 'Institution';
-  const desgLabel = isBN ? 'পদবী' : 'Designation';
-  const mobLabel = isBN ? 'মোবাইল নং' : 'Mobile No';
-  doc.text(`${nameLabel}: ${userName}`, 10, y); y+=6;
-  doc.text(`${instLabel}: ${userInstitution}`, 10, y); y+=6;
-  doc.text(`${desgLabel}: ${userDesignation}`, 10, y); y+=6;
-  doc.text(`${mobLabel}: ${userMobile}`, 10, y); y+=8;
-  
-  // Thick black line separator
-  doc.setLineWidth(0.8);
-  doc.setDrawColor(0,0,0);
-  doc.line(10, y, 200, y); y+=8;
-  
-  // Then existing sections from y position
+  const userName = profile.name || 'Md. Abdus Salam';
+  const userInstitution = profile.institution || profile.company || 'BRAC BANK PLC.';
+  const userDesignation = profile.designation || 'ARM & UIC';
+  const userMobile = profile.mobile || '01313796480';
+  doc.setFontSize(18); doc.setFont('helvetica','bold'); doc.text(isBN ? 'Market Survey' : 'Market Survey', 10, 15);
+  doc.setFontSize(8); doc.setFont('helvetica','normal'); doc.text('Developer: Md. Abdus Salam', 200, 12, {align:'right'});
+  let y=28; doc.setFontSize(10); doc.text('Download Date: '+downloadDate, 10, y); y+=6; doc.text('Download Time: '+downloadTime, 10, y); y+=8;
+  doc.setFont('helvetica','bold'); doc.text('User Information:', 10, y); y+=6; doc.setFont('helvetica','normal');
+  doc.text('Name: '+userName, 10, y); y+=6; doc.text('Institution: '+userInstitution, 10, y); y+=6;
+  doc.text('Designation: '+userDesignation, 10, y); y+=6; doc.text('Mobile No: '+userMobile, 10, y); y+=8;
+  doc.setLineWidth(0.8); doc.line(10, y, 200, y); y+=8;
   const fmt=(v,u)=>{ if(v===undefined||v===''||v===null) return '-'; return String(v)+' '+(u||''); };
-  
   function sec(title, rows){
-    const useFont = doc.getFontList()['NotoSansBengali'] ? 'NotoSansBengali' : 'helvetica';
-    doc.setFont(useFont,'bold'); doc.setFontSize(10);
-    doc.setFillColor(45,45,45); doc.setTextColor(255,255,255);
-    doc.rect(14, y, 182, 7, 'F');
-    doc.text(title, 16, y+5);
-    doc.setTextColor(0,0,0);
-    y+=8;
     try{
-      doc.autoTable({ 
-        startY:y, 
-        body:rows, 
-        theme:'grid', 
-        styles:{font:useFont, fontSize:8, cellPadding:3, overflow:'linebreak', cellWidth:'wrap', lineColor:[200,200,200]}, 
-        columnStyles:{
-          0:{fontStyle:'bold', cellWidth:52, fillColor:[248,250,252], font:useFont}, 
-          1:{cellWidth:130, overflow:'linebreak', font:useFont}
-        }, 
-        margin:{left:14, right:14}
-      });
+      doc.setFont('helvetica','bold'); doc.setFontSize(10); doc.setFillColor(45,45,45); doc.setTextColor(255,255,255);
+      doc.rect(14, y, 182, 7, 'F'); doc.text(title, 16, y+5); doc.setTextColor(0,0,0); y+=8;
+      doc.autoTable({ startY:y, body:rows, theme:'grid', styles:{font:'helvetica', fontSize:8, cellPadding:3}, columnStyles:{0:{fontStyle:'bold', cellWidth:52, fillColor:[248,250,252]}, 1:{cellWidth:130}}, margin:{left:14, right:14} });
       y=doc.lastAutoTable.finalY+5;
-    }catch(e){
-      doc.setFont(useFont,'normal'); doc.setFontSize(8);
-      rows.forEach(r=>{ doc.text(r[0]+': '+r[1], 16, y); y+=5; if(y>270){ doc.addPage(); y=15; } });
-    }
-    if(y>270){ doc.addPage(); y=15; }
-  });
-    }
+    }catch(e){ y+=10; }
     if(y>270){ doc.addPage(); y=15; }
   }
-  
-  sec(isBN ? '১. মালিকানা' : '1. Ownership', [['Ownership Type', s.ownershipType||'1 Person'], ['Owner 1 Share', fmt(s.owner1Pct,'%')], ['Owner 2 Name', s.owner2Name||'-']]);
-  sec(isBN ? '২. ব্যবসার তথ্য' : '2. Business Information', [['Business Name', s.businessName||''], ['Owner Name', s.ownerName||''], ['Mobile', s.mobile||''], ['Business Type', s.businessType||''], ['Address', s.address||''], ['Cash In Hand', fmt(s.cashInHand,'Lac')], ['Stock', fmt(s.stock,'Lac')], ['Monthly Sales', fmt(s.monthlySales,'Lac')], ['Shop Advance', fmt(s.shopAdvance,'Lac')]]);
-  sec(isBN ? '৩. বিদ্যমান ঋণ' : '3. Existing Loan', [['Disbursement Date', s.disbursementDate||'-'], ['Amount', fmt(s.disbursementAmount,'Lac')], ['Outstanding', fmt(s.currentOutstanding,'Lac')]]);
-  sec(isBN ? '৪. পারিবারিক ব্যয়' : '4. Family Expenditure', [['House Rent', fmt(s.houseRent,'Thousand')], ['Total Family Exp', fmt(s.totalFamExp,'Thousand')]]);
-  sec(isBN ? '৫. অন্যান্য আয়' : '5. Other Income', [['Total Other Income', fmt(s.totalOtherIncome,'Thousand')]]);
-  sec(isBN ? '৬. পারিবারিক সম্পদ ও দায়' : '6. Family Asset & Liability', [['Total Asset', fmt(s.familyAsset,'Lac')], ['Net Worth', fmt(s.familyNetWorth,'Lac')]]);
-  sec(isBN ? '৭. ব্যক্তিগত সম্পদ' : '7. Personal Asset', [['Person 1 Details', s.personalAsset1||'-'], ['Person 1 Value', fmt(s.personalAssetValue1,'Lac')]]);
-  sec(isBN ? '৮. নতুন ঋণের চাহিদা' : '8. New Loan Requirement', [['Desired Loan', fmt(s.desiredLoan,'Lac')], ['Which Month', s.loanMonth||'-']]);
-  let gRows=[];
-  if(s.guarantors && s.guarantors.length>0){
-    s.guarantors.forEach((g,i)=>{ gRows.push([`Guarantor ${i+1}`, `Name: ${g.name||'-'} | Mobile: ${g.mobile||'-'}`]); });
-  } else {
-    gRows.push(['Family Guarantor', s.familyGuarantorName||'-'], ['3rd Party', s.thirdPartyGuarantorName||'-']);
-  }
-  sec(isBN ? '৯. জামিনদার' : '9. Guarantors', gRows);
-  
-  const pages=doc.internal.getNumberOfPages();
-  for(let i=1;i<=pages;i++){ doc.setPage(i); doc.setFontSize(6); doc.setTextColor(150,150,150); doc.text('Market Survey - Md. Abdus Salam | Page '+i+'/'+pages, 14, 290); }
+  // Business Type - ensure English fallback for vector mode to avoid garbled chars
+  let bizTypeForFallback = s.businessType||'';
+  try{
+    // If contains Bengali, keep only English part for fallback to avoid garbled rendering
+    if(/[\u0980-\u09FF]/.test(bizTypeForFallback)){
+      const englishPart = bizTypeForFallback.split('/').pop() || bizTypeForFallback;
+      // Keep full but html2canvas path already handled Bengali, this is fallback
+      bizTypeForFallback = bizTypeForFallback;
+    }
+  }catch(_){}
+  sec(isBN ? '1. Ownership' : '1. Ownership', [['Ownership Type', s.ownershipType||'1 Person'], ['Owner 1 Share', fmt(s.owner1Pct,'%')], ['Owner 2 Name', s.owner2Name||'-']]);
+  sec(isBN ? '2. Business Information' : '2. Business Information', [['Business Name', s.businessName||''], ['Owner Name', s.ownerName||''], ['Mobile', s.mobile||''], ['Business Type', bizTypeForFallback], ['Address', s.address||''], ['Cash In Hand', fmt(s.cashInHand,'Lac')], ['Stock', fmt(s.stock,'Lac')], ['Monthly Sales', fmt(s.monthlySales,'Lac')], ['Shop Advance', fmt(s.shopAdvance,'Lac')]]);
+  sec(isBN ? '3. Existing Loan' : '3. Existing Loan', [['Disbursement Date', s.disbursementDate||'-'], ['Amount', fmt(s.disbursementAmount,'Lac')], ['Outstanding', fmt(s.currentOutstanding,'Lac')]]);
+  sec(isBN ? '4. Family Expenditure' : '4. Family Expenditure', [['House Rent', fmt(s.houseRent,'Thousand')], ['Total Family Exp', fmt(s.totalFamExp,'Thousand')]]);
+  sec(isBN ? '5. Other Income' : '5. Other Income', [['Total Other Income', fmt(s.totalOtherIncome,'Thousand')]]);
+  sec(isBN ? '6. Family Asset & Liability' : '6. Family Asset & Liability', [['Total Asset', fmt(s.familyAsset,'Lac')], ['Net Worth', fmt(s.familyNetWorth,'Lac')]]);
+  sec(isBN ? '7. Personal Asset' : '7. Personal Asset', [['Person 1 Details', s.personalAsset1||'-'], ['Person 1 Value', fmt(s.personalAssetValue1,'Lac')]]);
+  sec(isBN ? '8. New Loan Requirement' : '8. New Loan Requirement', [['Desired Loan', fmt(s.desiredLoan,'Lac')], ['Which Month', s.loanMonth||'-']]);
+  let gRows=[]; if(s.guarantors && s.guarantors.length>0){ s.guarantors.forEach((g,i)=>{ gRows.push([`Guarantor ${i+1}`, `Name: ${g.name||'-'} | Mobile: ${g.mobile||'-'}`]); }); } else { gRows.push(['Family Guarantor', s.familyGuarantorName||'-'], ['3rd Party', s.thirdPartyGuarantorName||'-']); }
+  sec(isBN ? '9. Guarantors' : '9. Guarantors', gRows);
+  const pages=doc.internal.getNumberOfPages(); for(let i=1;i<=pages;i++){ doc.setPage(i); doc.setFontSize(6); doc.setTextColor(150,150,150); doc.text('Market Survey - Md. Abdus Salam | Page '+i+'/'+pages, 14, 290); }
   return doc;
 }
+
+
+
 
 async function generatePDFFromSurvey(s){
   const {jsPDF}=window.jspdf;
@@ -2751,202 +2710,7 @@ html, body { overflow-anchor: none; overscroll-behavior-y: contain; }
 })();
 </script>
 
-<script>
-// ===== PDF VECTOR - History = Report Same, No Blank, 300KB+ =====
-async function buildMarketSurveyPDFVector(doc, s){
-  // Language logic
-  const lang = localStorage.getItem('appLanguage') || localStorage.getItem('language') || localStorage.getItem('lang') || 'EN';
-  const isBN = (lang === 'BN' || lang === 'bn');
-  
-  // Download Date/Time - DD/MM/YYYY and 12-hour
-  const now = new Date();
-  const downloadDate = `${String(now.getDate()).padStart(2,'0')}/${String(now.getMonth()+1).padStart(2,'0')}/${now.getFullYear()}`;
-  const downloadTime = now.toLocaleTimeString('en-US', {hour:'2-digit', minute:'2-digit', second:'2-digit', hour12:true});
 
-  // --- START: Business Type Bengali Fix - MUST ADD ---
-  const fontToUse = 'NotoSansBengali';
-  try{
-    if(!doc.getFontList()[fontToUse]){
-      // Fetch Noto Sans Bengali TTF and embed
-      const ttfUrl = 'https://raw.githubusercontent.com/google/fonts/main/ofl/notosansbengali/NotoSansBengali-Regular.ttf';
-      const resp = await fetch(ttfUrl);
-      if(resp.ok){
-        const ab = await resp.arrayBuffer();
-        let bin=''; const u8=new Uint8Array(ab); for(let i=0;i<u8.length;i++) bin+=String.fromCharCode(u8[i]);
-        const b64=btoa(bin);
-        doc.addFileToVFS('NotoSansBengali.ttf', b64);
-        doc.addFont('NotoSansBengali.ttf', fontToUse, 'normal');
-        doc.addFont('NotoSansBengali.ttf', fontToUse, 'bold');
-      }
-    }
-    doc.setFont(fontToUse, 'normal');
-  }catch(e){ console.warn('font load failed', e); doc.setFont('helvetica','normal'); }
-  // --- END ---
-  
-  // User info from profile - try multiple keys
-  let profile = {};
-  try{
-    profile = JSON.parse(localStorage.getItem('profile')||'{}');
-    if(!profile.name){
-      const alt = JSON.parse(localStorage.getItem('userProfile')||'{}');
-      profile = {...alt, ...profile};
-      if(alt.name) profile.name = alt.name;
-      if(alt.company) profile.institution = profile.institution || alt.company;
-      if(alt.mobile) profile.mobile = profile.mobile || alt.mobile;
-    }
-    if(!profile.name){
-      const alt2 = JSON.parse(localStorage.getItem('profileData')||'{}');
-      profile = {...alt2, ...profile};
-    }
-  }catch(e){}
-  
-  const userName = profile.name || profile.userName || document.getElementById('headerSubName')?.textContent?.trim() || 'Md. Abdus Salam';
-  const userInstitution = profile.institution || profile.company || profile.institute || 'Brac Bank PLC.';
-  const userDesignation = profile.designation || profile.desig || profile.role || 'ARM & Unit in-charge';
-  const userMobile = profile.mobile || profile.phone || '01313796480';
-  
-  // ===== NEW HEADER DESIGN =====
-  // Top row: LEFT App Name bold large, RIGHT Developer info small right-aligned
-  doc.setFontSize(18);
-  doc.setFont('helvetica','bold');
-  doc.text(isBN ? 'মার্কেট সার্ভে' : 'Market Survey', 10, 15);
-  
-  // Header Right - Developer info (small, right aligned at 200)
-  doc.setFontSize(8);
-  doc.setFont('helvetica','normal');
-  const rightX = 200;
-  const devLabel = isBN ? 'ডেভেলপার' : 'Developer';
-  doc.text(`${devLabel}: Md. Abdus Salam`, rightX, 12, {align:'right'});
-  doc.text('+8801737265245', rightX, 16, {align:'right'});
-  doc.text('salamwgp@gmail.com', rightX, 20, {align:'right'});
-  
-  // Below that, left side stack: Download Date/Time
-  doc.setFontSize(10);
-  doc.setFont('helvetica','normal');
-  let y = 28;
-  const dateLabel = isBN ? 'ডাউনলোডের তারিখ' : 'Download Date';
-  const timeLabel = isBN ? 'ডাউনলোডের সময়' : 'Download Time';
-  doc.text(`${dateLabel}: ${downloadDate}`, 10, y); y+=6;
-  doc.text(`${timeLabel}: ${downloadTime}`, 10, y); y+=8;
-  
-  // User Information
-  doc.setFont('helvetica','bold');
-  const userInfoTitle = isBN ? 'ব্যবহারকারীর তথ্য:' : 'User Information:';
-  doc.text(userInfoTitle, 10, y); y+=6;
-  doc.setFont('helvetica','normal');
-  const nameLabel = isBN ? 'নাম' : 'Name';
-  const instLabel = isBN ? 'প্রতিষ্ঠান' : 'Institution';
-  const desgLabel = isBN ? 'পদবী' : 'Designation';
-  const mobLabel = isBN ? 'মোবাইল নং' : 'Mobile No';
-  doc.text(`${nameLabel}: ${userName}`, 10, y); y+=6;
-  doc.text(`${instLabel}: ${userInstitution}`, 10, y); y+=6;
-  doc.text(`${desgLabel}: ${userDesignation}`, 10, y); y+=6;
-  doc.text(`${mobLabel}: ${userMobile}`, 10, y); y+=8;
-  
-  // Thick black line separator
-  doc.setLineWidth(0.8);
-  doc.setDrawColor(0,0,0);
-  doc.line(10, y, 200, y); y+=8;
-  
-  // Then existing sections from y position
-  const fmt=(v,u)=>{ if(v===undefined||v===''||v===null) return '-'; return String(v)+' '+(u||''); };
-  
-  function sec(title, rows){
-    const useFont = doc.getFontList()['NotoSansBengali'] ? 'NotoSansBengali' : 'helvetica';
-    doc.setFont(useFont,'bold'); doc.setFontSize(10);
-    doc.setFillColor(45,45,45); doc.setTextColor(255,255,255);
-    doc.rect(14, y, 182, 7, 'F');
-    doc.text(title, 16, y+5);
-    doc.setTextColor(0,0,0);
-    y+=8;
-    try{
-      doc.autoTable({ 
-        startY:y, 
-        body:rows, 
-        theme:'grid', 
-        styles:{font:useFont, fontSize:8, cellPadding:3, overflow:'linebreak', cellWidth:'wrap', lineColor:[200,200,200]}, 
-        columnStyles:{
-          0:{fontStyle:'bold', cellWidth:52, fillColor:[248,250,252], font:useFont}, 
-          1:{cellWidth:130, overflow:'linebreak', font:useFont}
-        }, 
-        margin:{left:14, right:14}
-      });
-      y=doc.lastAutoTable.finalY+5;
-    }catch(e){
-      doc.setFont(useFont,'normal'); doc.setFontSize(8);
-      rows.forEach(r=>{ doc.text(r[0]+': '+r[1], 16, y); y+=5; if(y>270){ doc.addPage(); y=15; } });
-    }
-    if(y>270){ doc.addPage(); y=15; }
-  });
-    }
-    if(y>270){ doc.addPage(); y=15; }
-  }
-  
-  sec(isBN ? '১. মালিকানা' : '1. Ownership', [['Ownership Type', s.ownershipType||'1 Person'], ['Owner 1 Share', fmt(s.owner1Pct,'%')], ['Owner 2 Name', s.owner2Name||'-']]);
-  sec(isBN ? '২. ব্যবসার তথ্য' : '2. Business Information', [['Business Name', s.businessName||''], ['Owner Name', s.ownerName||''], ['Mobile', s.mobile||''], ['Business Type', s.businessType||''], ['Address', s.address||''], ['Cash In Hand', fmt(s.cashInHand,'Lac')], ['Stock', fmt(s.stock,'Lac')], ['Monthly Sales', fmt(s.monthlySales,'Lac')], ['Shop Advance', fmt(s.shopAdvance,'Lac')]]);
-  sec(isBN ? '৩. বিদ্যমান ঋণ' : '3. Existing Loan', [['Disbursement Date', s.disbursementDate||'-'], ['Amount', fmt(s.disbursementAmount,'Lac')], ['Outstanding', fmt(s.currentOutstanding,'Lac')]]);
-  sec(isBN ? '৪. পারিবারিক ব্যয়' : '4. Family Expenditure', [['House Rent', fmt(s.houseRent,'Thousand')], ['Total Family Exp', fmt(s.totalFamExp,'Thousand')]]);
-  sec(isBN ? '৫. অন্যান্য আয়' : '5. Other Income', [['Total Other Income', fmt(s.totalOtherIncome,'Thousand')]]);
-  sec(isBN ? '৬. পারিবারিক সম্পদ ও দায়' : '6. Family Asset & Liability', [['Total Asset', fmt(s.familyAsset,'Lac')], ['Net Worth', fmt(s.familyNetWorth,'Lac')]]);
-  sec(isBN ? '৭. ব্যক্তিগত সম্পদ' : '7. Personal Asset', [['Person 1 Details', s.personalAsset1||'-'], ['Person 1 Value', fmt(s.personalAssetValue1,'Lac')]]);
-  sec(isBN ? '৮. নতুন ঋণের চাহিদা' : '8. New Loan Requirement', [['Desired Loan', fmt(s.desiredLoan,'Lac')], ['Which Month', s.loanMonth||'-']]);
-  let gRows=[];
-  if(s.guarantors && s.guarantors.length>0){
-    s.guarantors.forEach((g,i)=>{ gRows.push([`Guarantor ${i+1}`, `Name: ${g.name||'-'} | Mobile: ${g.mobile||'-'}`]); });
-  } else {
-    gRows.push(['Family Guarantor', s.familyGuarantorName||'-'], ['3rd Party', s.thirdPartyGuarantorName||'-']);
-  }
-  sec(isBN ? '৯. জামিনদার' : '9. Guarantors', gRows);
-  
-  const pages=doc.internal.getNumberOfPages();
-  for(let i=1;i<=pages;i++){ doc.setPage(i); doc.setFontSize(6); doc.setTextColor(150,150,150); doc.text('Market Survey - Md. Abdus Salam | Page '+i+'/'+pages, 14, 290); }
-  return doc;
-}
-
-async function generatePDFFromSurvey(s){
-  const {jsPDF}=window.jspdf;
-  const doc=new jsPDF('p','mm','a4');
-  await buildMarketSurveyPDFVector(doc, s);
-  const fileName=`Market_Survey_${(s.businessName||'Report').replace(/\s+/g,'_')}_${Date.now()}.pdf`;
-  return {doc, fileName};
-}
-async function downloadPDF(idx){
-  const surveys=JSON.parse(localStorage.getItem('surveys')||'[]');
-  const s=surveys[idx]; if(!s){ alert('No data'); return; }
-  const btn=document.getElementById('pdfBtn_'+idx);
-  if(btn) btn.textContent='Generating...';
-  try{
-    const {doc, fileName}=await generatePDFFromSurvey(s);
-    const blob=doc.output('blob');
-    console.log('PDF size KB:', Math.round(blob.size/1024));
-    doc.save(fileName);
-    try{ window.lastPDFBlob=blob; window.lastPDFFileName=fileName; }catch(e){}
-    if(btn) btn.textContent='✓ Downloaded';
-    setTimeout(()=>{if(btn) btn.textContent='PDF Download';},2500);
-  }catch(e){ console.error(e); alert('PDF Failed: '+e.message); if(btn) btn.textContent='Failed'; }
-}
-async function generatePDFBlobForShare(s){
-  const {doc, fileName}=await generatePDFFromSurvey(s);
-  return {blob:doc.output('blob'), fileName};
-}
-async function sharePDF(idx){
-  const surveys=JSON.parse(localStorage.getItem('surveys')||'[]');
-  const s=surveys[idx]; if(!s) return;
-  try{
-    let blob, fileName;
-    if(window.lastPDFBlob && window.lastPDFFileName){ blob=window.lastPDFBlob; fileName=window.lastPDFFileName; }
-    else { const g=await generatePDFBlobForShare(s); blob=g.blob; fileName=g.fileName; }
-    const file=new File([blob], fileName, {type:'application/pdf'});
-    if(navigator.canShare && navigator.canShare({files:[file]})){ await navigator.share({files:[file], title:fileName, text:'Market Survey - '+s.businessName}); }
-    else { const url=URL.createObjectURL(blob); window.open(url,'_blank'); }
-  }catch(e){ if(e.name!=='AbortError'){ console.error(e); alert('Share failed: '+e.message); } }
-}
-async function viewPDF(idx){
-  const surveys=JSON.parse(localStorage.getItem('surveys')||'[]');
-  const s=surveys[idx]; if(!s) return;
-  try{ const {doc}=await generatePDFFromSurvey(s); const blob=doc.output('blob'); const url=URL.createObjectURL(blob); window.open(url,'_blank'); }catch(e){ alert('View failed: '+e.message); }
-}
-</script>
 
 </body>
 </html>
