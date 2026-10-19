@@ -37,7 +37,7 @@ input::placeholder{color:#bbb;font-weight:400;opacity:0.7;}
 #avatarInitials{display:none !important;}
 .w-10.h-10.rounded-full #avatarInitials{display:none !important;}
 </style>
-<style>.pdf-report{font-family:sans-serif;background:white;padding:20px;color:#222}.pdf-header{border-bottom:3px solid #2b2b2b;padding-bottom:12px;margin-bottom:16px;display:flex;justify-content:space-between}.pdf-section{margin-bottom:18px;border:1px solid #e5e7eb;border-radius:12px;padding:12px}.pdf-section-title{background:#2b2b2b;color:white;padding:6px 12px;border-radius:8px;font-weight:800;font-size:13px;margin-bottom:10px}.pdf-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:12px}.pdf-grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;font-size:12px}.pdf-field{border-bottom:1px dotted #ccc;padding:4px 0;word-break:break-word;overflow-wrap:break-word;white-space:normal;line-height:1.4}</style>
+<style>.pdf-report{font-family:sans-serif;background:white;padding:20px;color:#222}.pdf-header{border-bottom:3px solid #2b2b2b;padding-bottom:12px;margin-bottom:16px;display:flex;justify-content:space-between}.pdf-section{margin-bottom:18px;border:1px solid #e5e7eb;border-radius:12px;padding:12px}.pdf-section-title{background:#2b2b2b;color:white;padding:6px 12px;border-radius:8px;font-weight:800;font-size:13px;margin-bottom:10px;text-align:left}.pdf-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:12px}.pdf-grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;font-size:12px}.pdf-field{border-bottom:1px dotted #ccc;padding:4px 0;word-break:break-word;overflow-wrap:break-word;white-space:normal;line-height:1.4}</style>
 <style>
 /* Laptop - Full Screen */
 @media (min-width: 1024px){
@@ -589,27 +589,24 @@ function switchPage(p){
   document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));
   var t=document.getElementById('page-'+p);
   if(t)t.classList.add('active');
-  if(p==='history'||p==='home'){if(typeof loadSurveysNew==='function')loadSurveysNew();}
+  if(p==='history'||p==='home'||p==='reports'){if(typeof loadSurveysNew==='function')loadSurveysNew();}
   try{ localStorage.setItem('currentPage', p); }catch(e){}
   window.scrollTo(0,0);
 }
 (function(){
   try{
-    var savedPage=localStorage.getItem('currentPage');
-    if(savedPage){
-        var t=document.getElementById('page-'+savedPage);
-        if(t){
-          // Only switch if not already active to avoid flicker
-          if(!t.classList.contains('active')){
-            document.querySelectorAll('.page').forEach(function(x){x.classList.remove('active');});
-            document.querySelectorAll('.nav-btn').forEach(function(b){b.classList.remove('active');});
-            t.classList.add('active');
-            var btn=document.querySelector('[data-page="'+savedPage+'"]');
-            if(btn)btn.classList.add('active');
-            if(savedPage==='history'||savedPage==='home'){if(typeof loadSurveysNew==='function')loadSurveysNew();}
-          }
-        }
+    // TASK 1: Always start on home page
+    var savedPage='home';
+    var t=document.getElementById('page-'+savedPage);
+    if(t){
+        document.querySelectorAll('.page').forEach(function(x){x.classList.remove('active');});
+        document.querySelectorAll('.nav-btn').forEach(function(b){b.classList.remove('active');});
+        t.classList.add('active');
+        var btn=document.querySelector('[data-page="'+savedPage+'"]');
+        if(btn)btn.classList.add('active');
+        if(typeof loadSurveysNew==='function')loadSurveysNew();
     }
+    try{ localStorage.setItem('currentPage','home'); localStorage.setItem('lastPage','home'); }catch(e){}
   }catch(e){}
 })();
 
@@ -849,7 +846,7 @@ function loadDraftToForm(){const draft=JSON.parse(localStorage.getItem('draftSur
 function updateDraftUI(){const draft=JSON.parse(localStorage.getItem('draftSurvey')||'null');const box=document.getElementById('draftBox');const status=document.getElementById('draftStatus');if(draft&&draft.businessName){box.classList.remove('hidden');document.getElementById('draftName').textContent=draft.businessName+' - '+(draft.ownerName||'')+' ('+new Date(draft._updated).toLocaleString('bn-BD')+')';status.innerHTML='<span style="background:#10b981;color:white;font-size:10px;padding:2px 8px;border-radius:9999px">Draft</span>';}else{box.classList.add('hidden');status.innerHTML='';}}
 function calcAll(){const monthly=parseFloat(document.getElementById('monthlySales')?.value||0);document.getElementById('yearlySales').value=monthly*12;const wPct=parseFloat(document.getElementById('wholesalePct')?.value||0);const wProf=parseFloat(document.getElementById('wholesaleProfit')?.value||0);const rPct=parseFloat(document.getElementById('retailPct')?.value||0);const rProf=parseFloat(document.getElementById('retailProfit')?.value||0);const sPct=parseFloat(document.getElementById('servicePct')?.value||0);const sProf=parseFloat(document.getElementById('serviceProfit')?.value||0);let avg=0,totalPct=wPct+rPct+sPct;if(totalPct>0){avg=((wPct*wProf)+(rPct*rProf)+(sPct*sProf))/totalPct;}document.getElementById('avgMargin').value=avg.toFixed(2);const sum=(selector,outputName)=>{const inputs=document.querySelectorAll(selector);let total=0;inputs.forEach(i=>{if(!i.name.includes('total')&&!i.readOnly) total+=parseFloat(i.value||0);});const out=document.querySelector(`[name="${outputName}"]`);if(out) out.value=total;};sum('.fam-exp','totalFamExp');sum('.fam-exp2','totalFamExp2');sum('.biz-exp','totalOperatingExp');sum('.other-income','totalOtherIncome');sum('.other-income2','totalOtherIncome2');sum('.savings','totalSavings');sum('.savings2','totalSavings2');const asset=parseFloat(document.querySelector('[name="familyAsset"]')?.value||0);const liab=parseFloat(document.getElementById('familyLiabilities')?.value||0);document.getElementById('familyNetWorth').value=asset-liab;}
 function loadProfile(){const p=JSON.parse(localStorage.getItem('userProfile')||'{}');const t=dict[currentLang];if(p.name){document.getElementById('headerSubName').textContent=p.name;document.getElementById('profileName').value=p.name;}else{document.getElementById('headerSubName').textContent=t.profileSet;}if(p.company){document.getElementById('profileCompany').value=p.company;const el=document.getElementById('headerCompanyInfo');el.textContent=p.company;el.classList.remove('hidden');}if(p.designation){document.getElementById('profileDesignation').value=p.designation;const el=document.getElementById('headerDesigInfo');el.textContent=p.designation;el.classList.remove('hidden');}if(p.mobile){document.getElementById('profileMobile').value=p.mobile;const el=document.getElementById('headerMobileInfo');el.textContent=p.mobile;el.classList.remove('hidden');}if(p.name){const initials=p.name.split(' ').map(w=>w[0]).join('').substring(0,2).toUpperCase();document.getElementById('avatarInitials').textContent=initials;}}
-function loadSurveys(){const surveys=JSON.parse(localStorage.getItem('surveys')||'[]');document.getElementById('totalSurveys').textContent=surveys.length;document.getElementById('todaySurveys').textContent=surveys.filter(s=>new Date(s.createdAt).toDateString()===new Date().toDateString()).length;const recent=document.getElementById('recentList');recent.innerHTML='';surveys.slice(-3).reverse().forEach(s=>{const d=document.createElement('div');d.className='border rounded-xl p-3 text-sm bg-gray-50';d.innerHTML=`<b>${s.businessName||''}</b> - ${s.ownerName||''}`;recent.appendChild(d);});const list=document.getElementById('surveyList');list.innerHTML='';const filter=(document.getElementById('listSearch').value||'').toLowerCase();surveys.slice().reverse().forEach((s,revIdx)=>{const origIdx=surveys.length-1-revIdx;if(filter&&!((s.businessName||'').toLowerCase().includes(filter)||(s.ownerName||'').toLowerCase().includes(filter)||(s.mobile||'').includes(filter))) return;const d=document.createElement('div');d.className='border rounded-xl p-3 bg-white text-sm flex justify-between';d.innerHTML=`<div><b>${s.businessName}</b><br>${s.ownerName} | ${s.mobile||''}<br><span class="text-xs text-gray-500">${s.businessType||''}</span></div><div class="flex flex-col gap-1"><button onclick="openEdit(${origIdx})" class="bg-blue-600 text-white px-3 py-1 rounded-full text-xs">Open/Edit</button><button onclick="deleteSurvey(${origIdx})" class="bg-red-100 text-red-600 px-3 py-1 rounded-full text-xs">Delete</button></div>`;list.appendChild(d);});}
+function loadSurveys(){const surveys=JSON.parse(localStorage.getItem('surveys')||'[]');document.getElementById('totalSurveys').textContent=surveys.length;document.getElementById('todaySurveys').textContent=surveys.filter(s=>new Date(s.createdAt).toDateString()===new Date().toDateString()).length;const recent=document.getElementById('recentList');recent.innerHTML='';surveys.slice(-3).reverse().forEach(s=>{const d=document.createElement('div');d.className='border rounded-xl p-3 text-sm bg-gray-50';d.innerHTML=`<b>${s.businessName||''}</b> - ${s.ownerName||''}`;recent.appendChild(d);});const list=document.getElementById('surveyList');list.innerHTML='';const filter=(document.getElementById('listSearch').value||'').toLowerCase();surveys.slice().reverse().forEach((s,revIdx)=>{const origIdx=surveys.length-1-revIdx;if(filter&&!((s.businessName||'').toLowerCase().includes(filter)||(s.ownerName||'').toLowerCase().includes(filter)||(s.mobile||'').includes(filter))) return;const d=document.createElement('div');d.className='border rounded-xl p-3 bg-white text-sm flex justify-between';d.innerHTML=`<div><b>${s.businessName}</b><br>${s.ownerName} | ${s.mobile||''}<br><span class="text-xs text-gray-500">${s.businessType||''}</span></div><div class="flex flex-col" style="width:135px;gap:8px"><button onclick="openEdit(${origIdx})" class="bg-blue-600 text-white" style="min-width:135px;min-height:44px;padding:10px 20px;border-radius:22px;font-size:14px;font-weight:600;width:100%;display:flex;justify-content:center;align-items:center;text-align:center;line-height:1.2">Open/Edit</button><button id="pdfBtn_${origIdx}" onclick="downloadPDF(${origIdx})" class="bg-emerald-600 text-white" style="min-width:135px;min-height:44px;padding:10px 20px;border-radius:22px;font-size:14px;font-weight:600;width:100%;display:flex;justify-content:center;align-items:center;text-align:center;line-height:1.2">PDF Download</button><button onclick="sharePDF(${origIdx})" class="bg-[#c9a86a] text-white" style="min-width:135px;min-height:44px;padding:10px 20px;border-radius:22px;font-size:14px;font-weight:600;width:100%;display:flex;justify-content:center;align-items:center;text-align:center;line-height:1.2">Share</button><button onclick="deleteSurvey(${origIdx})" class="bg-red-100 text-red-600" style="min-width:135px;min-height:44px;padding:10px 20px;border-radius:22px;font-size:14px;font-weight:600;width:100%;display:flex;justify-content:center;align-items:center;text-align:center;line-height:1.2">Delete</button></div>`;list.appendChild(d);});}
 function openEdit(idx){const surveys=JSON.parse(localStorage.getItem('surveys')||'[]');const s=surveys[idx];if(!s) return;editIndex=idx;for(let k in s){if(k==='guarantors' || k==='noOfGuarantor') continue; const el=document.querySelector(`[name="${k}"]`);if(el){if(el.type==='radio'){const r=document.querySelector(`[name="${k}"][value="${s[k]}"]`);if(r) r.checked=true;}else{el.value=s[k];}}}if(s.businessType){
   document.getElementById('businessTypeVal').value=s.businessType;
   try{
@@ -1259,13 +1256,17 @@ if(savedPhoto){ showProfilePhoto(savedPhoto); }
 function buildReportHTML(s){
  const profile=JSON.parse(localStorage.getItem('userProfile')||'{}');
  const fmt=(v,unit)=>{if(v===undefined||v===''||v===null) return '-'; const num=parseFloat(v); if(isNaN(num)) return '-'; return v+' '+(unit||'');};
- return '<div class="pdf-header"><div><h1 style="font-size:20px;font-weight:800;margin:0">Market Survey / মার্কেট সার্ভে</h1><p style="font-size:11px;color:#666;margin:2px 0">Survey Report - '+new Date(s.createdAt).toLocaleString('en-BD')+'</p><p style="font-size:11px;">Surveyed By: '+(profile.name||'')+' | '+(profile.company||'')+' | '+(profile.mobile||'')+'</p></div><div style="text-align:right;font-size:10px;color:#888"><p>Developer: Md. Abdus Salam</p><p>+8801737265245</p><p>salamwgp@gmail.com</p></div></div>'
+ return '<div class="pdf-header" style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #000;padding-bottom:10px;margin-bottom:12px">'
+  +'<div style="text-align:left"><h1 style="font-size:20px;font-weight:800;margin:0">Market Survey / মার্কেট সার্ভে</h1><div style="display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin:6px 0 2px 0;font-size:11px;color:#000"><span style="font-size:12px;font-weight:700;color:#000">Survey Report</span><span><b style="font-weight:800;color:#000">Download Day:</b> '+(() => { const dt=new Date(); const dd=String(dt.getDate()).padStart(2,'0'); const mm=String(dt.getMonth()+1).padStart(2,'0'); const yyyy=dt.getFullYear(); return dd+'/'+mm+'/'+yyyy; })()+'</span><span><b style="font-weight:800;color:#000">Time:</b> '+new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:true})+'</span></div><div style="margin-top:8px;font-size:11px;line-height:1.6"><p style="margin:0;font-weight:700">Surveyed By:</p><p style="margin:0">নাম: '+(profile.name||'')+'</p><p style="margin:0">প্রতিষ্ঠান: '+(profile.company||profile.institution||'')+'</p><p style="margin:0">পদবী: '+(profile.designation||'')+'</p><p style="margin:0">মোবাইল নম্বর: '+(profile.mobile||'')+'</p></div></div>'
+  +'<div style="text-align:left;font-size:13px;color:#111;line-height:1.5;font-weight:500"><p style="font-size:16px;font-weight:800;margin:0 0 4px 0;color:#000">💻 Developer</p><p style="margin:2px 0">👤 Md. Abdus Salam</p><p style="margin:2px 0">📍 Bantra, Jalalabad, Kalaroa, Satkhira</p><p style="margin:2px 0">📞 Mobile: +8801737265245</p><p style="margin:2px 0">✉️ Email: salamwgp@gmail.com</p></div>'
+  +'</div>'
  +'<div class="pdf-section"><div class="pdf-section-title">1. Ownership</div><div class="pdf-grid"><div class="pdf-field"><b>Ownership Type:</b> '+(s.ownershipType||'1 Person')+'</div><div class="pdf-field"><b>Owner 1 Share:</b> '+fmt(s.owner1Pct,'%')+'</div><div class="pdf-field"><b>Owner 2 Name:</b> '+(s.owner2Name||'-')+'</div><div class="pdf-field"><b>Owner 2 Share:</b> '+fmt(s.owner2Pct,'%')+'</div></div></div>'
  +'<div class="pdf-section"><div class="pdf-section-title">2. Business Information</div><div class="pdf-grid"><div class="pdf-field"><b>Business Name:</b> '+(s.businessName||'')+'</div><div class="pdf-field"><b>Owner Name:</b> '+(s.ownerName||'')+'</div><div class="pdf-field"><b>Mobile:</b> '+(s.mobile||'')+'</div><div class="pdf-field"><b>Business Type:</b> '+(s.businessType||'')+'</div><div class="pdf-field"><b>Address:</b> '+(s.address||'')+'</div><div class="pdf-field"><b>Ownership:</b> '+(s.ownershipType||'1')+' Person</div></div>'
  +'<div style="margin-top:10px"><p style="font-weight:700;font-size:12px;background:#f0f9ff;padding:4px 8px;border-radius:6px">Core Business (Lac)</p><div class="pdf-grid-3" style="margin-top:8px"><div class="pdf-field"><b>Cash In Hand:</b> '+fmt(s.cashInHand,'Lac')+'</div><div class="pdf-field"><b>Goods In Transit:</b> '+fmt(s.goodsInTransit,'Lac')+'</div><div class="pdf-field"><b>Stock:</b> '+fmt(s.stock,'Lac')+'</div><div class="pdf-field"><b>Receivables:</b> '+fmt(s.receivables,'Lac')+'</div><div class="pdf-field"><b>Payables:</b> '+fmt(s.payables,'Lac')+'</div><div class="pdf-field"><b>Monthly Sales:</b> '+fmt(s.monthlySales,'Lac')+'</div><div class="pdf-field"><b>Yearly Sales:</b> '+fmt(s.yearlySales,'Lac')+'</div><div class="pdf-field"><b>Possession Value:</b> '+fmt(s.possessionValue,'Lac')+'</div><div class="pdf-field"><b>Shop Advance:</b> '+fmt(s.shopAdvance,'Lac')+'</div><div class="pdf-field"><b>Building Cost:</b> '+fmt(s.buildingCost,'Lac')+'</div><div class="pdf-field"><b>Furniture:</b> '+fmt(s.furniture,'Lac')+'</div><div class="pdf-field"><b>Machineries:</b> '+fmt(s.machineries,'Lac')+'</div></div>'
  +'<div class="pdf-grid" style="margin-top:8px"><div class="pdf-field"><b>Vehicle No:</b> '+(s.vehicleNo||'-')+'</div><div class="pdf-field"><b>Vehicle Price:</b> '+fmt(s.vehiclePrice,'Lac')+'</div><div class="pdf-field"><b>Total Employee:</b> '+(s.totalEmployee||'-')+'</div><div class="pdf-field"><b>Total Salary:</b> '+fmt(s.totalSalary,'Thousand')+'</div></div>'
  +'<div class="pdf-grid-3" style="margin-top:8px"><div class="pdf-field"><b>Owners Drawing:</b> '+fmt(s.ownersDrawing,'Thousand')+'</div><div class="pdf-field"><b>Rent:</b> '+fmt(s.rentBusiness,'Thousand')+'</div><div class="pdf-field"><b>Electricity:</b> '+fmt(s.bizElectricity,'Thousand')+'</div><div class="pdf-field"><b>Transport:</b> '+fmt(s.transportCost,'Thousand')+'</div><div class="pdf-field"><b>Admin:</b> '+fmt(s.adminExpenses,'Thousand')+'</div><div class="pdf-field"><b>Tax:</b> '+fmt(s.tax,'Thousand')+'</div><div class="pdf-field"><b>Total Operating:</b> '+fmt(s.totalOperatingExp,'Thousand')+'</div></div></div></div>'
  +'<div class="pdf-section"><div class="pdf-section-title">3. Existing Loan</div><div class="pdf-grid"><div class="pdf-field"><b>Disbursement Date:</b> '+(s.disbursementDate||'-')+'</div><div class="pdf-field"><b>Amount:</b> '+fmt(s.disbursementAmount,'Lac')+'</div><div class="pdf-field"><b>Total EMI:</b> '+fmt(s.totalEMI,'Thousand')+'</div><div class="pdf-field"><b>Outstanding:</b> '+fmt(s.currentOutstanding,'Lac')+'</div><div class="pdf-field"><b>Entertainment:</b> '+fmt(s.entertainmentCost,'Thousand')+'</div></div></div>'
+ +'<div id="pdfPageBreak" style="page-break-after:always;break-after:page;height:0;"></div>'
  +'<div class="pdf-section"><div class="pdf-section-title">4. Family Expenditure (Monthly)</div><div class="pdf-grid-3"><div class="pdf-field"><b>House Rent:</b> '+fmt(s.houseRent,'Thousand')+'</div><div class="pdf-field"><b>Food & Cloth:</b> '+fmt(s.foodCloth,'Thousand')+'</div><div class="pdf-field"><b>Education:</b> '+fmt(s.famEducation,'Thousand')+'</div><div class="pdf-field"><b>Telephone:</b> '+fmt(s.telephoneBill,'Thousand')+'</div><div class="pdf-field"><b>Medical:</b> '+fmt(s.medical,'Thousand')+'</div><div class="pdf-field"><b>Entertainment:</b> '+fmt(s.famEntertainment,'Thousand')+'</div><div class="pdf-field"><b>Conveyance:</b> '+fmt(s.conveyance,'Thousand')+'</div><div class="pdf-field"><b>Electricity:</b> '+fmt(s.houseElectricity,'Thousand')+'</div><div class="pdf-field"><b>Total:</b> '+fmt(s.totalFamExp,'Thousand')+'</div></div></div>'
  +'<div class="pdf-section"><div class="pdf-section-title">5. Income from other sources (Monthly)</div><div class="pdf-grid-3"><div class="pdf-field"><b>Rental:</b> '+fmt(s.rentalIncome,'Thousand')+'</div><div class="pdf-field"><b>Other Business:</b> '+fmt(s.otherBusinessIncome,'Thousand')+'</div><div class="pdf-field"><b>Transport:</b> '+fmt(s.transportBusiness,'Thousand')+'</div><div class="pdf-field"><b>Remittance:</b> '+fmt(s.remittance,'Thousand')+'</div><div class="pdf-field"><b>Agricultural:</b> '+fmt(s.agriIncome,'Thousand')+'</div><div class="pdf-field"><b>Salary:</b> '+fmt(s.salaryIncome,'Thousand')+'</div><div class="pdf-field"><b>Total:</b> '+fmt(s.totalOtherIncome,'Thousand')+'</div></div></div>'
  +'<div class="pdf-section"><div class="pdf-section-title">6. Family Asset & Liability</div><div class="pdf-grid-3"><div class="pdf-field"><b>Total Asset:</b> '+fmt(s.familyAsset,'Lac')+'</div><div class="pdf-field"><b>Liabilities:</b> '+fmt(s.familyLiabilities,'Lac')+'</div><div class="pdf-field"><b>Net Worth:</b> '+fmt(s.familyNetWorth,'Lac')+'</div></div></div>'
@@ -1303,7 +1304,7 @@ function buildReportHTML(s){
    gHtml+='</div>';
    return gHtml;
  })() +
- +'<div style="text-align:center;margin-top:20px;font-size:10px;color:#888;border-top:1px solid #eee;padding-top:10px">Generated by Market Survey App | Developer: Md. Abdus Salam | +8801737265245</div>';
+ '<div style="text-align:center;margin-top:20px;font-size:10px;color:#888;border-top:1px solid #eee;padding-top:10px">Generated by Market Survey App | Developer: Md. Abdus Salam | +8801737265245</div>';
 }
 
 
@@ -1972,8 +1973,9 @@ html, body { overflow-anchor: none; overscroll-behavior-y: contain; }
   
   window.addEventListener('DOMContentLoaded', function(){
     try{
-      const lp = localStorage.getItem('lastPage') || localStorage.getItem('currentPage') || 'home';
+      const lp = 'home';
       if(typeof origSwitch==='function') origSwitch(lp);
+      try{ localStorage.setItem('lastPage','home'); localStorage.setItem('currentPage','home'); }catch(e){}
     }catch(e){}
   });
   
@@ -2037,55 +2039,80 @@ async function buildMarketSurveyPDFVector(doc, s){
         container.style.cssText = 'position:fixed;left:-10000px;top:0;width:800px;background:white;padding:20px;font-family:\'Noto Serif Bengali\', \'Noto Sans Bengali\', sans-serif;';
         document.body.appendChild(container);
       }
-      container.innerHTML = `
+      const styleBlock = `
         <style>
           #__pdfRenderContainer .pdf-header{display:flex;justify-content:space-between;border-bottom:2px solid #000;padding-bottom:10px;margin-bottom:15px}
           #__pdfRenderContainer .pdf-section{margin-bottom:15px;border:1px solid #ddd;border-radius:8px;overflow:hidden}
-          #__pdfRenderContainer .pdf-section-title{background:#2b2b2b;color:white;padding:6px 12px;font-weight:700;font-size:14px}
+          #__pdfRenderContainer .pdf-section-title{background:#2b2b2b;color:white;padding:6px 12px;font-weight:700;font-size:14px;text-align:left}
           #__pdfRenderContainer .pdf-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:#e5e7eb}
           #__pdfRenderContainer .pdf-grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1px;background:#e5e7eb}
           #__pdfRenderContainer .pdf-field{background:white;padding:8px 10px;font-size:12px;display:flex;gap:6px}
           #__pdfRenderContainer .pdf-field b{min-width:120px;font-weight:700}
         </style>
-        ${reportHtml}
       `;
-      // Wait fonts
+      // TASK: Split into 2 pages: 1-3 first page, 4-9 second page
+      const breakMarker = 'pdfPageBreak';
+      let parts = reportHtml.split(breakMarker);
+      let page1Html = parts[0];
+      let page2Html = parts.length > 1 ? parts[1] : '';
+      // Clean up the break div remnants from split
+      page2Html = page2Html.replace(/^[^>]*>/, '').replace(/^["']\s*>\s*/, '');
+      // If split failed, fallback to old single canvas
+      let useSplit = parts.length > 1;
+
       if(document.fonts && document.fonts.ready){ try{ await document.fonts.ready; }catch(_){} }
       await new Promise(r=>setTimeout(r, 300));
-      
-      const canvas = await html2canvas(container, {
-        scale: 2,
-        useCORS: true,
-        backgroundColor: '#ffffff',
-        windowWidth: 800,
-        logging: false
-      });
-      
-      const imgData = canvas.toDataURL('image/png');
-      const imgWidth = 190; // A4 width minus margins (210-20)
-      const pageHeight = 277; // A4 height minus margins
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
-      
-      let heightLeft = imgHeight;
-      let position = 10;
-      
-      doc.addImage(imgData, 'PNG', 10, position, imgWidth, imgHeight);
-      heightLeft -= pageHeight;
-      
-      while(heightLeft > 0){
+
+      if(useSplit){
+        // Page 1: header + sections 1-3
+        container.innerHTML = styleBlock + page1Html;
+        await new Promise(r=>setTimeout(r, 100));
+        const canvas1 = await html2canvas(container, {scale: 2.4, useCORS: true, backgroundColor: '#ffffff', windowWidth: 800, logging: false});
+        const imgData1 = canvas1.toDataURL('image/jpeg', 0.92);
+        const imgWidth = 190;
+        const imgHeight1 = (canvas1.height * imgWidth) / canvas1.width;
+        doc.addImage(imgData1, 'JPEG', 10, 10, imgWidth, imgHeight1);
+
+        // Page 2: sections 4-9
         doc.addPage();
-        position = 10 - (imgHeight - heightLeft);
-        // For multi-page, we need to offset image
-        doc.addImage(imgData, 'PNG', 10, position, imgWidth, imgHeight);
+        container.innerHTML = styleBlock + page2Html;
+        await new Promise(r=>setTimeout(r, 100));
+        const canvas2 = await html2canvas(container, {scale: 2.4, useCORS: true, backgroundColor: '#ffffff', windowWidth: 800, logging: false});
+        const imgData2 = canvas2.toDataURL('image/jpeg', 0.92);
+        const imgHeight2 = (canvas2.height * imgWidth) / canvas2.width;
+        let heightLeft2 = imgHeight2;
+        let position2 = 10;
+        doc.addImage(imgData2, 'JPEG', 10, position2, imgWidth, imgHeight2);
+        heightLeft2 -= 277;
+        while(heightLeft2 > 0){
+          doc.addPage();
+          position2 = 10 - (imgHeight2 - heightLeft2);
+          doc.addImage(imgData2, 'JPEG', 10, position2, imgWidth, imgHeight2);
+          heightLeft2 -= 277;
+        }
+      } else {
+        container.innerHTML = styleBlock + reportHtml;
+        await new Promise(r=>setTimeout(r, 300));
+        const canvas = await html2canvas(container, {scale: 2.4, useCORS: true, backgroundColor: '#ffffff', windowWidth: 800, logging: false});
+        const imgData = canvas.toDataURL('image/jpeg', 0.92);
+        const imgWidth = 190;
+        const pageHeight = 277;
+        const imgHeight = (canvas.height * imgWidth) / canvas.width;
+        let heightLeft = imgHeight;
+        let position = 10;
+        doc.addImage(imgData, 'JPEG', 10, position, imgWidth, imgHeight);
         heightLeft -= pageHeight;
+        while(heightLeft > 0){
+          doc.addPage();
+          position = 10 - (imgHeight - heightLeft);
+          doc.addImage(imgData, 'JPEG', 10, position, imgWidth, imgHeight);
+          heightLeft -= pageHeight;
+        }
       }
       
-      // Clean
       try{ container.innerHTML=''; }catch(_){}
-      
       const pages=doc.internal.getNumberOfPages();
       for(let i=1;i<=pages;i++){ doc.setPage(i); doc.setFontSize(7); doc.setTextColor(150,150,150); try{ doc.setFont('helvetica','normal'); }catch(_){}; doc.text('Market Survey - Md. Abdus Salam | Page '+i+'/'+pages, 10, 290); }
-      
       return doc;
     }
   }catch(e){
@@ -2106,12 +2133,37 @@ async function buildMarketSurveyPDFVector(doc, s){
   const userInstitution = profile.institution || profile.company || 'BRAC BANK PLC.';
   const userDesignation = profile.designation || 'ARM & UIC';
   const userMobile = profile.mobile || '01313796480';
-  doc.setFontSize(18); doc.setFont('helvetica','bold'); doc.text(isBN ? 'Market Survey' : 'Market Survey', 10, 15);
-  doc.setFontSize(8); doc.setFont('helvetica','normal'); doc.text('Developer: Md. Abdus Salam', 200, 12, {align:'right'});
-  let y=28; doc.setFontSize(10); doc.text('Download Date: '+downloadDate, 10, y); y+=6; doc.text('Download Time: '+downloadTime, 10, y); y+=8;
-  doc.setFont('helvetica','bold'); doc.text('User Information:', 10, y); y+=6; doc.setFont('helvetica','normal');
-  doc.text('Name: '+userName, 10, y); y+=6; doc.text('Institution: '+userInstitution, 10, y); y+=6;
-  doc.text('Designation: '+userDesignation, 10, y); y+=6; doc.text('Mobile No: '+userMobile, 10, y); y+=8;
+  doc.setFontSize(18); doc.setFont('helvetica','bold'); doc.text('Market Survey / মার্কেট সার্ভে', 10, 15);
+  doc.setFontSize(16); doc.setFont('helvetica','bold');
+  doc.text('Developer', 120, 15, {align:'left'});
+  doc.setFontSize(11); doc.setFont('helvetica','normal');
+  doc.text('Md. Abdus Salam', 120, 22, {align:'left'});
+  doc.text('Bantra, Jalalabad, Kalaroa, Satkhira', 120, 27, {align:'left'});
+  doc.text('Mobile: +8801737265245', 120, 32, {align:'left'});
+  doc.text('Email: salamwgp@gmail.com', 120, 37, {align:'left'});
+  let y=45;
+  const d = new Date();
+  const dd=String(d.getDate()).padStart(2,'0'); const mm=String(d.getMonth()+1).padStart(2,'0'); const yyyy=d.getFullYear();
+  const timeStr=d.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:true});
+  const dateStr=dd+'/'+mm+'/'+yyyy;
+  doc.setFontSize(10); doc.setFont('helvetica','bold'); doc.setTextColor(0,0,0);
+  doc.text('Survey Report', 10, y);
+  // Measure to place next parts on same line
+  let xSR = doc.getTextWidth('Survey Report') + 14;
+  doc.text('Download Day:', xSR, y); 
+  let xDayLabel = xSR + doc.getTextWidth('Download Day:') + 1;
+  doc.setFont('helvetica','normal'); doc.text(dateStr, xDayLabel, y);
+  let xTimeStart = xDayLabel + doc.getTextWidth(dateStr) + 4;
+  doc.setFont('helvetica','bold'); doc.text('Time:', xTimeStart, y);
+  let xTimeVal = xTimeStart + doc.getTextWidth('Time:') + 1;
+  doc.setFont('helvetica','normal'); doc.text(timeStr, xTimeVal, y);
+  y+=8;
+  doc.setFont('helvetica','bold'); doc.text('Surveyed By:', 10, y); y+=6;
+  doc.setFont('helvetica','normal');
+  doc.text('নাম: '+userName, 10, y); y+=6;
+  doc.text('প্রতিষ্ঠান: '+userInstitution, 10, y); y+=6;
+  doc.text('পদবী: '+userDesignation, 10, y); y+=6;
+  doc.text('মোবাইল নম্বর: '+userMobile, 10, y); y+=8;
   doc.setLineWidth(0.8); doc.line(10, y, 200, y); y+=8;
   const fmt=(v,u)=>{ if(v===undefined||v===''||v===null) return '-'; return String(v)+' '+(u||''); };
   function sec(title, rows){
@@ -2136,6 +2188,7 @@ async function buildMarketSurveyPDFVector(doc, s){
   sec(isBN ? '1. Ownership' : '1. Ownership', [['Ownership Type', s.ownershipType||'1 Person'], ['Owner 1 Share', fmt(s.owner1Pct,'%')], ['Owner 2 Name', s.owner2Name||'-']]);
   sec(isBN ? '2. Business Information' : '2. Business Information', [['Business Name', s.businessName||''], ['Owner Name', s.ownerName||''], ['Mobile', s.mobile||''], ['Business Type', bizTypeForFallback], ['Address', s.address||''], ['Cash In Hand', fmt(s.cashInHand,'Lac')], ['Stock', fmt(s.stock,'Lac')], ['Monthly Sales', fmt(s.monthlySales,'Lac')], ['Shop Advance', fmt(s.shopAdvance,'Lac')]]);
   sec(isBN ? '3. Existing Loan' : '3. Existing Loan', [['Disbursement Date', s.disbursementDate||'-'], ['Amount', fmt(s.disbursementAmount,'Lac')], ['Outstanding', fmt(s.currentOutstanding,'Lac')]]);
+  try{ doc.addPage(); y=15; }catch(e){}
   sec(isBN ? '4. Family Expenditure' : '4. Family Expenditure', [['House Rent', fmt(s.houseRent,'Thousand')], ['Total Family Exp', fmt(s.totalFamExp,'Thousand')]]);
   sec(isBN ? '5. Other Income' : '5. Other Income', [['Total Other Income', fmt(s.totalOtherIncome,'Thousand')]]);
   sec(isBN ? '6. Family Asset & Liability' : '6. Family Asset & Liability', [['Total Asset', fmt(s.familyAsset,'Lac')], ['Net Worth', fmt(s.familyNetWorth,'Lac')]]);
@@ -2662,8 +2715,9 @@ html, body { overflow-anchor: none; overscroll-behavior-y: contain; }
   
   window.addEventListener('DOMContentLoaded', function(){
     try{
-      const lp = localStorage.getItem('lastPage') || localStorage.getItem('currentPage') || 'home';
+      const lp = 'home';
       if(typeof origSwitch==='function') origSwitch(lp);
+      try{ localStorage.setItem('lastPage','home'); localStorage.setItem('currentPage','home'); }catch(e){}
     }catch(e){}
   });
   
