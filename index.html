@@ -15,22 +15,16 @@
 
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+Bengali:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
-
-html, body { overflow-anchor: none; overscroll-behavior-y: contain; }
-.app-container { min-height: 100dvh; }
-body { scrollbar-gutter: stable; }
-.page { content-visibility: auto; }
-
-
-body{scrollbar-gutter:stable;overflow-anchor:none;padding-top:env(safe-area-inset-top, 0px);font-family:'Noto Serif Bengali',serif;background:#fffcf5;padding-bottom:calc(105px + env(safe-area-inset-bottom))}
-.bottom-nav{position:fixed;transform:translateZ(0);will-change:transform;backface-visibility:hidden;bottom:0;left:0;right:0;background:#fffef9;border-top:1px solid #f0e6d3;display:flex;justify-content:space-around;align-items:flex-end;padding:10px 0 calc(12px + env(safe-area-inset-bottom));z-index:50;min-height:calc(72px + env(safe-area-inset-bottom));box-sizing:border-box}
+body{padding-top:env(safe-area-inset-top, 0px);font-family:'Noto Serif Bengali',serif;background:#fffcf5;padding-bottom:calc(105px + env(safe-area-inset-bottom))}
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:#fffef9;border-top:1px solid #f0e6d3;display:flex;justify-content:space-around;align-items:flex-end;padding:10px 0 calc(12px + env(safe-area-inset-bottom));z-index:50;min-height:calc(72px + env(safe-area-inset-bottom));box-sizing:border-box}
 .nav-btn{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:11px;color:#8b7355;padding:4px 10px;font-weight:600}
 .nav-btn.active{color:#1d4ed8}
 .center-plus{width:56px;height:56px;background:#c9a86a;border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;font-size:28px;margin-top:-18px;cursor:pointer}
-.page{position:absolute;top:0;left:0;width:100%;min-height:calc(100vh - 110px);visibility:hidden;opacity:0;pointer-events:none;transform:translateZ(0);transition:none}.page.active{position:relative;visibility:visible;opacity:1;pointer-events:auto;transform:translateZ(0)}
+.page{display:none}.page.active{display:block}
 .lang-toggle{border:1px solid #e9ddd0;border-radius:9999px;padding:3px;display:flex;gap:2px;background:white}
 .lang-opt{padding:6px 14px;border-radius:9999px;font-weight:700;font-size:13px;cursor:pointer}
 .lang-opt.active{background:#2b2b2b;color:white}
@@ -55,6 +49,19 @@ input::placeholder{color:#bbb;font-weight:400;opacity:0.7;}
 @media (max-width: 768px){
   .w-full.mx-auto.lg\:max-w-full{padding-left:0; padding-right:0;}
 }
+</style>
+
+
+<style>
+#appHeader {
+  position: sticky !important;
+  position: -webkit-sticky !important;
+  top: 0 !important;
+  z-index: 1000 !important;
+  background: #fffcf5 !important;
+  border-bottom: 1px solid #f0e6d3 !important;
+}
+.bottom-nav { z-index: 1001 !important; }
 </style>
 
 </head>
@@ -127,9 +134,9 @@ input::placeholder{color:#bbb;font-weight:400;opacity:0.7;}
 
 <div class="w-full mx-auto lg:max-w-full">
 
-<div class="bg-[#fffcf5] px-4 py-4 flex justify-between items-center border-b border-[#f0e6d3]">
+<div id="appHeader" class="bg-[#fffcf5] px-4 py-4 flex justify-between items-center border-b border-[#f0e6d3]">
 <div class="flex items-center gap-3">
-<div class="w-12 h-12 rounded-full bg-[#2b2b2b] flex items-center justify-center text-white font-bold text-lg border-2 border-[#c9a86a]"><img width="80" height="80" style="aspect-ratio:1;object-fit:cover;" id="headerAvatarImg" src="" class="w-10 h-10 rounded-full object-cover border-2 border-[#c9a86a] hidden"><span id="avatarInitials" style="display:none !important;"></span></div>
+<div class="w-12 h-12 rounded-full bg-[#2b2b2b] flex items-center justify-center text-white font-bold text-lg border-2 border-[#c9a86a]"><img id="headerAvatarImg" src="" class="w-10 h-10 rounded-full object-cover border-2 border-[#c9a86a] hidden"><span id="avatarInitials" style="display:none !important;"></span></div>
 <div>
 <h1 id="headerTitle" class="text-[20px] font-extrabold">মার্কেট সার্ভে</h1>
 <div id="dynamicUserInfo"><p id="headerSubName" class="text-[#a0804d] font-bold text-[13px]">প্রোফাইল সেট করুন</p><p id="headerCompanyInfo" class="text-[11px] hidden"></p><p id="headerDesigInfo" class="text-[11px] hidden"></p><p id="headerMobileInfo" class="text-[11px] hidden"></p></div>
@@ -482,7 +489,7 @@ input::placeholder{color:#bbb;font-weight:400;opacity:0.7;}
 </div>
 <div class="mt-4 flex flex-col items-center">
 <div class="relative">
-<img width="80" height="80" style="aspect-ratio:1;object-fit:cover;" id="profilePhotoPreview" src="" class="w-28 h-28 rounded-full object-cover border-4 border-[#c9a86a] bg-gray-100 hidden">
+<img id="profilePhotoPreview" src="" class="w-28 h-28 rounded-full object-cover border-4 border-[#c9a86a] bg-gray-100 hidden">
 <div id="profilePhotoPlaceholder" class="w-28 h-28 rounded-full bg-gradient-to-br from-[#c9a86a] to-[#8b7355] flex items-center justify-center text-white text-3xl font-bold">👤</div>
 <label for="profilePhotoInput" class="absolute -bottom-2 -right-2 bg-[#2b2b2b] text-white w-9 h-9 rounded-full flex items-center justify-center cursor-pointer shadow-lg">📷</label>
 </div>
@@ -582,9 +589,9 @@ function switchPage(p){
   document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));
   var t=document.getElementById('page-'+p);
   if(t)t.classList.add('active');
-  try{ localStorage.setItem('lastPage', p); }catch(e){}
+  if(p==='history'||p==='home'){if(typeof loadSurveysNew==='function')loadSurveysNew();}
   try{ localStorage.setItem('currentPage', p); }catch(e){}
-  if(p==='history'||p==='home'){if(typeof loadSurveysNew==='function'){requestAnimationFrame(function(){loadSurveysNew();});}}
+  window.scrollTo(0,0);
 }
 (function(){
   try{
@@ -877,8 +884,7 @@ try{
     }
   },200);
 }catch(e){ console.log(e); }
-document.getElementById('editBanner').classList.remove('hidden');document.getElementById('editName').textContent=s.businessName;document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById('page-add').classList.add('active');
-}
+document.getElementById('editBanner').classList.remove('hidden');document.getElementById('editName').textContent=s.businessName;document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById('page-add').classList.add('active');window.scrollTo(0,0);}
 function deleteSurvey(idx){if(confirm('Delete?')){const arr=JSON.parse(localStorage.getItem('surveys')||'[]');arr.splice(idx,1);localStorage.setItem('surveys',JSON.stringify(arr));loadSurveys();}}
 document.addEventListener('DOMContentLoaded',()=>{
 renderBiz();renderLoans();renderGodowns();loadProfile();applyLang();loadSurveys();loadDraftToForm();updateDraftUI();calcAll();
@@ -1186,7 +1192,7 @@ function updateHeaderPhoto(base64){
   if(!headerImg) {
     const avatarDiv = document.querySelector('.w-10.h-10.rounded-full');
     if(avatarDiv && base64){
-      avatarDiv.innerHTML = '<img width="80" height="80" style="aspect-ratio:1;object-fit:cover;" id="headerAvatarImg" src="'+base64+'" class="w-full h-full rounded-full object-cover">';
+      avatarDiv.innerHTML = '<img id="headerAvatarImg" src="'+base64+'" class="w-full h-full rounded-full object-cover">';
     }
     return;
   }
@@ -1303,171 +1309,12 @@ function buildReportHTML(s){
 
 
 
-async function viewPDF(idx){
- const surveys=JSON.parse(localStorage.getItem('surveys')||'[]');
- const s=surveys[idx]; if(!s) return;
- let modal=document.getElementById('pdfViewModal');
- if(!modal){
-   modal=document.createElement('div');
-   modal.id='pdfViewModal';
-   modal.style.cssText='position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,0.7);display:flex;flex-direction:column;padding:10px;';
-   modal.innerHTML='<div style="display:flex;justify-content:space-between;align-items:center;background:white;padding:12px;border-radius:12px 12px 0 0;"><h3 style="font-weight:800;">PDF View</h3><div style="display:flex;gap:8px;"><button onclick="document.getElementById(\'pdfViewModal\').style.display=\'none\'" style="background:#2b2b2b;color:white;padding:6px 16px;border-radius:20px;font-size:12px;">Close</button></div></div><div id="pdfViewContent" style="flex:1;overflow:auto;background:white;padding:20px;border-radius:0 0 12px 12px;"></div>';
-   document.body.appendChild(modal);
- }
- modal.style.display='flex';
- const viewContent=document.getElementById('pdfViewContent');
- if(viewContent){
-   viewContent.innerHTML=buildReportHTML(s);
-   viewContent.scrollTop=0;
- }
-}
+async 
 
+async 
 
-
-
-
-
-
-
-async function downloadPDF(idx){
- const surveys=JSON.parse(localStorage.getItem('surveys')||'[]');
- const s=surveys[idx]; if(!s) return;
- const container=document.getElementById('pdfReportContent');
- container.innerHTML=buildReportHTML(s);
- container.style.width='800px';
- container.style.maxWidth='800px';
- container.style.left='0';
- container.style.position='absolute';
- container.style.top='0';
- container.style.background='white';
- container.style.padding='20px';
- container.style.fontFamily="'Noto Serif Bengali', sans-serif";
- const btn=document.getElementById('pdfBtn_'+idx);
- if(btn) btn.textContent='Generating...';
- try{
-  if(document.fonts && document.fonts.ready){ await document.fonts.ready; }
-  await new Promise(r=>setTimeout(r, 400));
-  const canvas=await html2canvas(container,{
-    scale: 0.5,
-    useCORS:true,
-    backgroundColor:'#ffffff',
-    logging:false
-  });
-  const imgData=canvas.toDataURL('image/jpeg', 0.70);
-  const {jsPDF}=window.jspdf;
-  const doc=new jsPDF('p','mm','a4');
-  const pageW=doc.internal.pageSize.getWidth();
-  const pageH=doc.internal.pageSize.getHeight();
-  const imgW=pageW-10;
-  const imgH=(canvas.height*imgW)/canvas.width;
-  let hLeft=imgH;
-  let pos=5;
-  doc.addImage(imgData,'JPEG',5,pos,imgW,imgH);
-  hLeft-=pageH;
-  while(hLeft>0){
-    pos=hLeft-imgH+5;
-    doc.addPage();
-    doc.addImage(imgData,'JPEG',5,pos,imgW,imgH);
-    hLeft-=pageH;
-  }
-  const fileName=`Market_Survey_${(s.businessName||'Report').replace(/\s+/g,'_')}_${Date.now()}.pdf`;
-  doc.save(fileName);
-  try{ window.lastPDFBlob=doc.output('blob'); window.lastPDFFileName=fileName; }catch(e){}
-  if(btn) btn.textContent='✓ Downloaded';
-  setTimeout(()=>{if(btn) btn.textContent='PDF Download';},2500);
- }catch(e){
-  console.error('PDF Failed:', e);
-  if(btn) btn.textContent='Failed';
- }finally{
-  container.style.left='-9999px';
-  container.style.position='fixed';
-  container.style.width='';
- }
-}
-
-
-
-async function generatePDFBlobForShare(s){
- const container=document.getElementById('pdfReportContent');
- container.innerHTML=buildReportHTML(s);
- container.style.width='800px';
- container.style.maxWidth='800px';
- container.style.left='0';
- container.style.position='absolute';
- container.style.top='0';
- container.style.background='white';
- container.style.padding='20px';
- container.style.fontFamily="'Noto Serif Bengali', sans-serif";
- try{
-  if(document.fonts && document.fonts.ready){ await document.fonts.ready; }
-  await new Promise(r=>setTimeout(r, 300));
-  const canvas=await html2canvas(container,{
-    scale: 0.5,
-    useCORS:true,
-    backgroundColor:'#ffffff',
-    logging:false
-  });
-  const imgData=canvas.toDataURL('image/jpeg', 0.70);
-  const {jsPDF}=window.jspdf;
-  const doc=new jsPDF('p','mm','a4');
-  const pageW=doc.internal.pageSize.getWidth();
-  const pageH=doc.internal.pageSize.getHeight();
-  const imgW=pageW-10;
-  const imgH=(canvas.height*imgW)/canvas.width;
-  let hLeft=imgH;
-  let pos=5;
-  doc.addImage(imgData,'JPEG',5,pos,imgW,imgH);
-  hLeft-=pageH;
-  while(hLeft>0){
-    pos=hLeft-imgH+5;
-    doc.addPage();
-    doc.addImage(imgData,'JPEG',5,pos,imgW,imgH);
-    hLeft-=pageH;
-  }
-  const fileName=`Market_Survey_${(s.businessName||'Report').replace(/\s+/g,'_')}_${Date.now()}.pdf`;
-  const blob=doc.output('blob');
-  return {blob, fileName};
- }finally{
-  container.style.left='-9999px';
-  container.style.position='fixed';
-  container.style.width='';
- }
-}
-
-
-
-async function sharePDF(idx){
- const surveys=JSON.parse(localStorage.getItem('surveys')||'[]');
- const s=surveys[idx]; if(!s) return;
- try{
-  let blob, fileName;
-  if(window.lastPDFBlob && window.lastPDFFileName){
-    blob=window.lastPDFBlob;
-    fileName=window.lastPDFFileName;
-  } else {
-    const gen=await generatePDFBlobForShare(s);
-    blob=gen.blob;
-    fileName=gen.fileName;
-    window.lastPDFBlob=blob;
-    window.lastPDFFileName=fileName;
-  }
-  const file=new File([blob], fileName, {type:'application/pdf'});
-  if(navigator.canShare && navigator.canShare({files:[file]})){
-   await navigator.share({files:[file], title:fileName, text:'Market Survey Report - '+s.businessName});
-  }else{
-   const url=URL.createObjectURL(blob);
-   window.open(url);
-   setTimeout(()=>URL.revokeObjectURL(url), 5000);
-  }
- }catch(e){
-  if(e.name!=='AbortError') {
-    console.error('Share failed:', e);
-  }
- }
-}
-
-
-
+async 
+async 
 function loadSurveysNew(){
  const surveys=JSON.parse(localStorage.getItem('surveys')||'[]');
  const totalEl=document.getElementById('totalSurveys');
@@ -1533,7 +1380,7 @@ function updateHeaderPhoto(base64){
   if(!headerImg) {
     const avatarDiv = document.querySelector('.w-10.h-10.rounded-full');
     if(avatarDiv && base64){
-      avatarDiv.innerHTML = '<img width="80" height="80" style="aspect-ratio:1;object-fit:cover;" id="headerAvatarImg" src="'+base64+'" class="w-full h-full rounded-full object-cover">';
+      avatarDiv.innerHTML = '<img id="headerAvatarImg" src="'+base64+'" class="w-full h-full rounded-full object-cover">';
     }
     return;
   }
@@ -2102,71 +1949,156 @@ if('serviceWorker' in navigator){window.addEventListener('load',()=>{const b=new
 </script>
 
 
+<style>
+/* Refresh fix - no aggressive block */
+html, body { overflow-anchor: none; overscroll-behavior-y: contain; }
+.main-content { transition: transform 0.18s ease; }
+.bottom-nav { position:fixed !important; bottom:0; left:0; right:0; z-index:9999 !important; transform: translateZ(0); will-change: transform; }
+</style>
+
 <script>
-// FIX: Screen Flicker / Shake on Refresh - ONLY THIS
+// ===== REFRESH: Slight shake + Stay same page + Reload data =====
 (function(){
-  // Persist scrollY
-  try{
-    window.addEventListener('scroll', function(){
-      sessionStorage.setItem('scrollY', String(window.scrollY));
-    }, {passive:true});
-  }catch(e){}
-
-  // Prevent pull-to-refresh shake on top (contained)
-  try{
-    let startY=0;
-    document.addEventListener('touchstart', function(e){
-      startY = e.touches[0].clientY;
-    }, {passive:true});
-    document.addEventListener('touchmove', function(e){
-      const curY = e.touches[0].clientY;
-      const diff = curY - startY;
-      if(window.scrollY===0 && diff>0){
-        // Only prevent if at top and pulling down, to stop flicker
-        // Keep it contained, don't block normal scroll
-        if(e.cancelable) e.preventDefault();
-      }
-    }, {passive:false});
-  }catch(e){}
-
-  // Skeleton / opacity transition to prevent DOM remove flash
-  const style = document.createElement('style');
-  style.textContent = '.app-container{opacity:1;transition:opacity 0.12s ease} .app-container.loading{opacity:0.92}';
-  document.head.appendChild(style);
-
-  // Persist page on refresh - restore last page
-  try{
-    const savedPage = localStorage.getItem('lastPage') || sessionStorage.getItem('lastPage');
-    if(savedPage){
-      // Restore after DOM ready
-      if(document.readyState === 'loading'){
-        document.addEventListener('DOMContentLoaded', function(){
-          try{ switchPage(savedPage); const sy = sessionStorage.getItem('scrollY'); if(sy) window.scrollTo(0, parseInt(sy,10)); }catch(e){}
-        });
-      } else {
-        setTimeout(function(){
-          try{ switchPage(savedPage); const sy = sessionStorage.getItem('scrollY'); if(sy) window.scrollTo(0, parseInt(sy,10)); }catch(e){}
-        }, 0);
-      }
-    } else {
-      // Also restore scroll if any
-      const sy = sessionStorage.getItem('scrollY');
-      if(sy){
-        setTimeout(function(){ try{ window.scrollTo(0, parseInt(sy,10)); }catch(e){} }, 0);
-      }
+  let startY=0, pulling=false, pulled=0;
+  const mainEl = ()=> document.querySelector('.main-content') || document.querySelector('#page-home')?.parentElement || document.body;
+  
+  const origSwitch = window.switchPage;
+  if(origSwitch){
+    window.switchPage = function(p){
+      try{ localStorage.setItem('lastPage', p); sessionStorage.setItem('lastPage', p); localStorage.setItem('currentPage', p); }catch(e){}
+      return origSwitch(p);
+    };
+  }
+  
+  window.addEventListener('DOMContentLoaded', function(){
+    try{
+      const lp = localStorage.getItem('lastPage') || localStorage.getItem('currentPage') || 'home';
+      if(typeof origSwitch==='function') origSwitch(lp);
+    }catch(e){}
+  });
+  
+  window.addEventListener('scroll', function(){
+    try{ sessionStorage.setItem('scrollY', String(window.scrollY)); }catch(e){}
+  }, {passive:true});
+  
+  document.addEventListener('touchstart', function(e){
+    if(window.scrollY===0){ startY=e.touches[0].clientY; pulling=true; pulled=0; }
+  }, {passive:true});
+  
+  document.addEventListener('touchmove', function(e){
+    if(!pulling) return;
+    const curY=e.touches[0].clientY;
+    const diff=curY-startY;
+    if(window.scrollY===0 && diff>0 && diff<120){
+      pulled=diff;
+      const shake=Math.min(diff*0.35, 22);
+      const el=mainEl();
+      if(el) el.style.transform=`translateY(${shake}px)`;
     }
-  }catch(e){}
-
-  // Soft re-render instead of full reload if reload is triggered
-  // Override any location.reload usage to soft refresh data only
-  try{
-    const origReload = window.location.reload;
-    // Do not override, just ensure we don't do hard reload on pull
-    window.addEventListener('beforeunload', function(){
-      try{ sessionStorage.setItem('scrollY', String(window.scrollY)); }catch(e){}
-    });
-  }catch(e){}
+  }, {passive:true});
+  
+  document.addEventListener('touchend', async function(){
+    if(!pulling) return;
+    pulling=false;
+    const el=mainEl();
+    if(pulled>50){
+      if(el){ el.style.transform='translateY(12px)'; setTimeout(()=>{ el.style.transform='translateY(0px)'; }, 130); }
+      setTimeout(async ()=>{
+        try{
+          const savedPage=localStorage.getItem('lastPage')||'home';
+          const savedY=sessionStorage.getItem('scrollY')||0;
+          if(typeof loadSurveysNew==='function'){ await loadSurveysNew(); }
+          if(typeof origSwitch==='function'){ origSwitch(savedPage); }
+          setTimeout(()=>window.scrollTo(0, parseInt(savedY,10)||0), 50);
+        }catch(err){ console.error(err); if(el) el.style.transform='translateY(0px)'; }
+      }, 160);
+    } else {
+      if(el) el.style.transform='translateY(0px)';
+    }
+    pulled=0;
+  }, {passive:true});
 })();
+</script>
+
+<script>
+// ===== PDF VECTOR - History = Report Same, No Blank, 300KB+ =====
+function buildMarketSurveyPDFVector(doc, s){
+  const profile=JSON.parse(localStorage.getItem('userProfile')||'{}');
+  const fmt=(v,u)=>{ if(v===undefined||v===''||v===null) return '-'; return String(v)+' '+(u||''); };
+  doc.setFont('helvetica','bold'); doc.setFontSize(14);
+  doc.text('Market Survey / Market Survey', 14, 14);
+  doc.setFont('helvetica','normal'); doc.setFontSize(8);
+  doc.text('Report: '+new Date(s.createdAt||Date.now()).toLocaleString('en-BD'), 14, 19);
+  doc.text('By: '+(profile.name||'Md. Abdus Salam')+' | '+(profile.company||'Brac Bank'), 14, 23);
+  doc.setFontSize(7); doc.setTextColor(100,100,100);
+  doc.text('Developer: Md. Abdus Salam | +8801737265245', 14, 27);
+  doc.setTextColor(0,0,0);
+  let y=32;
+  function sec(title, rows){
+    doc.setFont('helvetica','bold'); doc.setFontSize(10);
+    doc.setFillColor(240,249,255); doc.rect(14, y, 182, 7, 'F');
+    doc.text(title, 16, y+5);
+    y+=8;
+    try{
+      doc.autoTable({ startY:y, body:rows, theme:'grid', styles:{fontSize:8, cellPadding:3}, columnStyles:{0:{fontStyle:'bold', cellWidth:52, fillColor:[248,250,252]}, 1:{cellWidth:130}}, margin:{left:14, right:14} });
+      y=doc.lastAutoTable.finalY+5;
+    }catch(e){
+      doc.setFont('helvetica','normal'); doc.setFontSize(8);
+      rows.forEach(r=>{ doc.text(r[0]+': '+r[1], 16, y); y+=5; if(y>270){ doc.addPage(); y=15; } });
+    }
+    if(y>270){ doc.addPage(); y=15; }
+  }
+  sec('1. Ownership', [['Ownership Type', s.ownershipType||'1 Person'], ['Owner 1 Share', fmt(s.owner1Pct,'%')], ['Owner 2 Name', s.owner2Name||'-']]);
+  sec('2. Business', [['Business Name', s.businessName||''], ['Owner Name', s.ownerName||''], ['Mobile', s.mobile||''], ['Business Type', s.businessType||''], ['Address', s.address||''], ['Stock', fmt(s.stock,'Lac')], ['Monthly Sales', fmt(s.monthlySales,'Lac')], ['Shop Advance', fmt(s.shopAdvance,'Lac')]]);
+  sec('3. Loan', [['Disbursement Date', s.disbursementDate||'-'], ['Amount', fmt(s.disbursementAmount,'Lac')], ['Outstanding', fmt(s.currentOutstanding,'Lac')]]);
+  sec('8. New Loan', [['Desired Loan', fmt(s.desiredLoan,'Lac')], ['Which Month', s.loanMonth||'-']]);
+  const pages=doc.internal.getNumberOfPages();
+  for(let i=1;i<=pages;i++){ doc.setPage(i); doc.setFontSize(6); doc.setTextColor(150,150,150); doc.text('Market Survey | Page '+i+'/'+pages, 14, 290); }
+  return doc;
+}
+async function generatePDFFromSurvey(s){
+  const {jsPDF}=window.jspdf;
+  const doc=new jsPDF('p','mm','a4');
+  buildMarketSurveyPDFVector(doc, s);
+  const fileName=`Market_Survey_${(s.businessName||'Report').replace(/\s+/g,'_')}_${Date.now()}.pdf`;
+  return {doc, fileName};
+}
+async function downloadPDF(idx){
+  const surveys=JSON.parse(localStorage.getItem('surveys')||'[]');
+  const s=surveys[idx]; if(!s){ alert('No data'); return; }
+  const btn=document.getElementById('pdfBtn_'+idx);
+  if(btn) btn.textContent='Generating...';
+  try{
+    const {doc, fileName}=await generatePDFFromSurvey(s);
+    const blob=doc.output('blob');
+    console.log('PDF size KB:', Math.round(blob.size/1024));
+    doc.save(fileName);
+    try{ window.lastPDFBlob=blob; window.lastPDFFileName=fileName; }catch(e){}
+    if(btn) btn.textContent='✓ Downloaded';
+    setTimeout(()=>{if(btn) btn.textContent='PDF Download';},2500);
+  }catch(e){ console.error(e); alert('PDF Failed: '+e.message); if(btn) btn.textContent='Failed'; }
+}
+async function generatePDFBlobForShare(s){
+  const {doc, fileName}=await generatePDFFromSurvey(s);
+  return {blob:doc.output('blob'), fileName};
+}
+async function sharePDF(idx){
+  const surveys=JSON.parse(localStorage.getItem('surveys')||'[]');
+  const s=surveys[idx]; if(!s) return;
+  try{
+    let blob, fileName;
+    if(window.lastPDFBlob && window.lastPDFFileName){ blob=window.lastPDFBlob; fileName=window.lastPDFFileName; }
+    else { const g=await generatePDFBlobForShare(s); blob=g.blob; fileName=g.fileName; }
+    const file=new File([blob], fileName, {type:'application/pdf'});
+    if(navigator.canShare && navigator.canShare({files:[file]})){ await navigator.share({files:[file], title:fileName, text:'Market Survey - '+s.businessName}); }
+    else { const url=URL.createObjectURL(blob); window.open(url,'_blank'); }
+  }catch(e){ if(e.name!=='AbortError'){ console.error(e); alert('Share failed: '+e.message); } }
+}
+async function viewPDF(idx){
+  const surveys=JSON.parse(localStorage.getItem('surveys')||'[]');
+  const s=surveys[idx]; if(!s) return;
+  try{ const {doc}=await generatePDFFromSurvey(s); const blob=doc.output('blob'); const url=URL.createObjectURL(blob); window.open(url,'_blank'); }catch(e){ alert('View failed: '+e.message); }
+}
 </script>
 
 </body>
@@ -2613,71 +2545,156 @@ if('serviceWorker' in navigator){window.addEventListener('load',()=>{const b=new
 </script>
 
 
+<style>
+/* Refresh fix - no aggressive block */
+html, body { overflow-anchor: none; overscroll-behavior-y: contain; }
+.main-content { transition: transform 0.18s ease; }
+.bottom-nav { position:fixed !important; bottom:0; left:0; right:0; z-index:9999 !important; transform: translateZ(0); will-change: transform; }
+</style>
+
 <script>
-// FIX: Screen Flicker / Shake on Refresh - ONLY THIS
+// ===== REFRESH: Slight shake + Stay same page + Reload data =====
 (function(){
-  // Persist scrollY
-  try{
-    window.addEventListener('scroll', function(){
-      sessionStorage.setItem('scrollY', String(window.scrollY));
-    }, {passive:true});
-  }catch(e){}
-
-  // Prevent pull-to-refresh shake on top (contained)
-  try{
-    let startY=0;
-    document.addEventListener('touchstart', function(e){
-      startY = e.touches[0].clientY;
-    }, {passive:true});
-    document.addEventListener('touchmove', function(e){
-      const curY = e.touches[0].clientY;
-      const diff = curY - startY;
-      if(window.scrollY===0 && diff>0){
-        // Only prevent if at top and pulling down, to stop flicker
-        // Keep it contained, don't block normal scroll
-        if(e.cancelable) e.preventDefault();
-      }
-    }, {passive:false});
-  }catch(e){}
-
-  // Skeleton / opacity transition to prevent DOM remove flash
-  const style = document.createElement('style');
-  style.textContent = '.app-container{opacity:1;transition:opacity 0.12s ease} .app-container.loading{opacity:0.92}';
-  document.head.appendChild(style);
-
-  // Persist page on refresh - restore last page
-  try{
-    const savedPage = localStorage.getItem('lastPage') || sessionStorage.getItem('lastPage');
-    if(savedPage){
-      // Restore after DOM ready
-      if(document.readyState === 'loading'){
-        document.addEventListener('DOMContentLoaded', function(){
-          try{ switchPage(savedPage); const sy = sessionStorage.getItem('scrollY'); if(sy) window.scrollTo(0, parseInt(sy,10)); }catch(e){}
-        });
-      } else {
-        setTimeout(function(){
-          try{ switchPage(savedPage); const sy = sessionStorage.getItem('scrollY'); if(sy) window.scrollTo(0, parseInt(sy,10)); }catch(e){}
-        }, 0);
-      }
-    } else {
-      // Also restore scroll if any
-      const sy = sessionStorage.getItem('scrollY');
-      if(sy){
-        setTimeout(function(){ try{ window.scrollTo(0, parseInt(sy,10)); }catch(e){} }, 0);
-      }
+  let startY=0, pulling=false, pulled=0;
+  const mainEl = ()=> document.querySelector('.main-content') || document.querySelector('#page-home')?.parentElement || document.body;
+  
+  const origSwitch = window.switchPage;
+  if(origSwitch){
+    window.switchPage = function(p){
+      try{ localStorage.setItem('lastPage', p); sessionStorage.setItem('lastPage', p); localStorage.setItem('currentPage', p); }catch(e){}
+      return origSwitch(p);
+    };
+  }
+  
+  window.addEventListener('DOMContentLoaded', function(){
+    try{
+      const lp = localStorage.getItem('lastPage') || localStorage.getItem('currentPage') || 'home';
+      if(typeof origSwitch==='function') origSwitch(lp);
+    }catch(e){}
+  });
+  
+  window.addEventListener('scroll', function(){
+    try{ sessionStorage.setItem('scrollY', String(window.scrollY)); }catch(e){}
+  }, {passive:true});
+  
+  document.addEventListener('touchstart', function(e){
+    if(window.scrollY===0){ startY=e.touches[0].clientY; pulling=true; pulled=0; }
+  }, {passive:true});
+  
+  document.addEventListener('touchmove', function(e){
+    if(!pulling) return;
+    const curY=e.touches[0].clientY;
+    const diff=curY-startY;
+    if(window.scrollY===0 && diff>0 && diff<120){
+      pulled=diff;
+      const shake=Math.min(diff*0.35, 22);
+      const el=mainEl();
+      if(el) el.style.transform=`translateY(${shake}px)`;
     }
-  }catch(e){}
-
-  // Soft re-render instead of full reload if reload is triggered
-  // Override any location.reload usage to soft refresh data only
-  try{
-    const origReload = window.location.reload;
-    // Do not override, just ensure we don't do hard reload on pull
-    window.addEventListener('beforeunload', function(){
-      try{ sessionStorage.setItem('scrollY', String(window.scrollY)); }catch(e){}
-    });
-  }catch(e){}
+  }, {passive:true});
+  
+  document.addEventListener('touchend', async function(){
+    if(!pulling) return;
+    pulling=false;
+    const el=mainEl();
+    if(pulled>50){
+      if(el){ el.style.transform='translateY(12px)'; setTimeout(()=>{ el.style.transform='translateY(0px)'; }, 130); }
+      setTimeout(async ()=>{
+        try{
+          const savedPage=localStorage.getItem('lastPage')||'home';
+          const savedY=sessionStorage.getItem('scrollY')||0;
+          if(typeof loadSurveysNew==='function'){ await loadSurveysNew(); }
+          if(typeof origSwitch==='function'){ origSwitch(savedPage); }
+          setTimeout(()=>window.scrollTo(0, parseInt(savedY,10)||0), 50);
+        }catch(err){ console.error(err); if(el) el.style.transform='translateY(0px)'; }
+      }, 160);
+    } else {
+      if(el) el.style.transform='translateY(0px)';
+    }
+    pulled=0;
+  }, {passive:true});
 })();
+</script>
+
+<script>
+// ===== PDF VECTOR - History = Report Same, No Blank, 300KB+ =====
+function buildMarketSurveyPDFVector(doc, s){
+  const profile=JSON.parse(localStorage.getItem('userProfile')||'{}');
+  const fmt=(v,u)=>{ if(v===undefined||v===''||v===null) return '-'; return String(v)+' '+(u||''); };
+  doc.setFont('helvetica','bold'); doc.setFontSize(14);
+  doc.text('Market Survey / Market Survey', 14, 14);
+  doc.setFont('helvetica','normal'); doc.setFontSize(8);
+  doc.text('Report: '+new Date(s.createdAt||Date.now()).toLocaleString('en-BD'), 14, 19);
+  doc.text('By: '+(profile.name||'Md. Abdus Salam')+' | '+(profile.company||'Brac Bank'), 14, 23);
+  doc.setFontSize(7); doc.setTextColor(100,100,100);
+  doc.text('Developer: Md. Abdus Salam | +8801737265245', 14, 27);
+  doc.setTextColor(0,0,0);
+  let y=32;
+  function sec(title, rows){
+    doc.setFont('helvetica','bold'); doc.setFontSize(10);
+    doc.setFillColor(240,249,255); doc.rect(14, y, 182, 7, 'F');
+    doc.text(title, 16, y+5);
+    y+=8;
+    try{
+      doc.autoTable({ startY:y, body:rows, theme:'grid', styles:{fontSize:8, cellPadding:3}, columnStyles:{0:{fontStyle:'bold', cellWidth:52, fillColor:[248,250,252]}, 1:{cellWidth:130}}, margin:{left:14, right:14} });
+      y=doc.lastAutoTable.finalY+5;
+    }catch(e){
+      doc.setFont('helvetica','normal'); doc.setFontSize(8);
+      rows.forEach(r=>{ doc.text(r[0]+': '+r[1], 16, y); y+=5; if(y>270){ doc.addPage(); y=15; } });
+    }
+    if(y>270){ doc.addPage(); y=15; }
+  }
+  sec('1. Ownership', [['Ownership Type', s.ownershipType||'1 Person'], ['Owner 1 Share', fmt(s.owner1Pct,'%')], ['Owner 2 Name', s.owner2Name||'-']]);
+  sec('2. Business', [['Business Name', s.businessName||''], ['Owner Name', s.ownerName||''], ['Mobile', s.mobile||''], ['Business Type', s.businessType||''], ['Address', s.address||''], ['Stock', fmt(s.stock,'Lac')], ['Monthly Sales', fmt(s.monthlySales,'Lac')], ['Shop Advance', fmt(s.shopAdvance,'Lac')]]);
+  sec('3. Loan', [['Disbursement Date', s.disbursementDate||'-'], ['Amount', fmt(s.disbursementAmount,'Lac')], ['Outstanding', fmt(s.currentOutstanding,'Lac')]]);
+  sec('8. New Loan', [['Desired Loan', fmt(s.desiredLoan,'Lac')], ['Which Month', s.loanMonth||'-']]);
+  const pages=doc.internal.getNumberOfPages();
+  for(let i=1;i<=pages;i++){ doc.setPage(i); doc.setFontSize(6); doc.setTextColor(150,150,150); doc.text('Market Survey | Page '+i+'/'+pages, 14, 290); }
+  return doc;
+}
+async function generatePDFFromSurvey(s){
+  const {jsPDF}=window.jspdf;
+  const doc=new jsPDF('p','mm','a4');
+  buildMarketSurveyPDFVector(doc, s);
+  const fileName=`Market_Survey_${(s.businessName||'Report').replace(/\s+/g,'_')}_${Date.now()}.pdf`;
+  return {doc, fileName};
+}
+async function downloadPDF(idx){
+  const surveys=JSON.parse(localStorage.getItem('surveys')||'[]');
+  const s=surveys[idx]; if(!s){ alert('No data'); return; }
+  const btn=document.getElementById('pdfBtn_'+idx);
+  if(btn) btn.textContent='Generating...';
+  try{
+    const {doc, fileName}=await generatePDFFromSurvey(s);
+    const blob=doc.output('blob');
+    console.log('PDF size KB:', Math.round(blob.size/1024));
+    doc.save(fileName);
+    try{ window.lastPDFBlob=blob; window.lastPDFFileName=fileName; }catch(e){}
+    if(btn) btn.textContent='✓ Downloaded';
+    setTimeout(()=>{if(btn) btn.textContent='PDF Download';},2500);
+  }catch(e){ console.error(e); alert('PDF Failed: '+e.message); if(btn) btn.textContent='Failed'; }
+}
+async function generatePDFBlobForShare(s){
+  const {doc, fileName}=await generatePDFFromSurvey(s);
+  return {blob:doc.output('blob'), fileName};
+}
+async function sharePDF(idx){
+  const surveys=JSON.parse(localStorage.getItem('surveys')||'[]');
+  const s=surveys[idx]; if(!s) return;
+  try{
+    let blob, fileName;
+    if(window.lastPDFBlob && window.lastPDFFileName){ blob=window.lastPDFBlob; fileName=window.lastPDFFileName; }
+    else { const g=await generatePDFBlobForShare(s); blob=g.blob; fileName=g.fileName; }
+    const file=new File([blob], fileName, {type:'application/pdf'});
+    if(navigator.canShare && navigator.canShare({files:[file]})){ await navigator.share({files:[file], title:fileName, text:'Market Survey - '+s.businessName}); }
+    else { const url=URL.createObjectURL(blob); window.open(url,'_blank'); }
+  }catch(e){ if(e.name!=='AbortError'){ console.error(e); alert('Share failed: '+e.message); } }
+}
+async function viewPDF(idx){
+  const surveys=JSON.parse(localStorage.getItem('surveys')||'[]');
+  const s=surveys[idx]; if(!s) return;
+  try{ const {doc}=await generatePDFFromSurvey(s); const blob=doc.output('blob'); const url=URL.createObjectURL(blob); window.open(url,'_blank'); }catch(e){ alert('View failed: '+e.message); }
+}
 </script>
 
 </body>
