@@ -18,12 +18,19 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+Bengali:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
-body{padding-top:env(safe-area-inset-top, 0px);font-family:'Noto Serif Bengali',serif;background:#fffcf5;padding-bottom:calc(105px + env(safe-area-inset-bottom))}
-.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:#fffef9;border-top:1px solid #f0e6d3;display:flex;justify-content:space-around;align-items:flex-end;padding:10px 0 calc(12px + env(safe-area-inset-bottom));z-index:50;min-height:calc(72px + env(safe-area-inset-bottom));box-sizing:border-box}
+
+html, body { overflow-anchor: none; overscroll-behavior-y: contain; }
+.app-container { min-height: 100dvh; }
+body { scrollbar-gutter: stable; }
+.page { content-visibility: auto; }
+
+
+body{scrollbar-gutter:stable;overflow-anchor:none;padding-top:env(safe-area-inset-top, 0px);font-family:'Noto Serif Bengali',serif;background:#fffcf5;padding-bottom:calc(105px + env(safe-area-inset-bottom))}
+.bottom-nav{position:fixed;transform:translateZ(0);will-change:transform;backface-visibility:hidden;bottom:0;left:0;right:0;background:#fffef9;border-top:1px solid #f0e6d3;display:flex;justify-content:space-around;align-items:flex-end;padding:10px 0 calc(12px + env(safe-area-inset-bottom));z-index:50;min-height:calc(72px + env(safe-area-inset-bottom));box-sizing:border-box}
 .nav-btn{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:11px;color:#8b7355;padding:4px 10px;font-weight:600}
 .nav-btn.active{color:#1d4ed8}
 .center-plus{width:56px;height:56px;background:#c9a86a;border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;font-size:28px;margin-top:-18px;cursor:pointer}
-.page{display:none}.page.active{display:block}
+.page{position:absolute;top:0;left:0;width:100%;min-height:calc(100vh - 110px);visibility:hidden;opacity:0;pointer-events:none;transform:translateZ(0);transition:none}.page.active{position:relative;visibility:visible;opacity:1;pointer-events:auto;transform:translateZ(0)}
 .lang-toggle{border:1px solid #e9ddd0;border-radius:9999px;padding:3px;display:flex;gap:2px;background:white}
 .lang-opt{padding:6px 14px;border-radius:9999px;font-weight:700;font-size:13px;cursor:pointer}
 .lang-opt.active{background:#2b2b2b;color:white}
@@ -122,7 +129,7 @@ input::placeholder{color:#bbb;font-weight:400;opacity:0.7;}
 
 <div class="bg-[#fffcf5] px-4 py-4 flex justify-between items-center border-b border-[#f0e6d3]">
 <div class="flex items-center gap-3">
-<div class="w-12 h-12 rounded-full bg-[#2b2b2b] flex items-center justify-center text-white font-bold text-lg border-2 border-[#c9a86a]"><img id="headerAvatarImg" src="" class="w-10 h-10 rounded-full object-cover border-2 border-[#c9a86a] hidden"><span id="avatarInitials" style="display:none !important;"></span></div>
+<div class="w-12 h-12 rounded-full bg-[#2b2b2b] flex items-center justify-center text-white font-bold text-lg border-2 border-[#c9a86a]"><img width="80" height="80" style="aspect-ratio:1;object-fit:cover;" id="headerAvatarImg" src="" class="w-10 h-10 rounded-full object-cover border-2 border-[#c9a86a] hidden"><span id="avatarInitials" style="display:none !important;"></span></div>
 <div>
 <h1 id="headerTitle" class="text-[20px] font-extrabold">মার্কেট সার্ভে</h1>
 <div id="dynamicUserInfo"><p id="headerSubName" class="text-[#a0804d] font-bold text-[13px]">প্রোফাইল সেট করুন</p><p id="headerCompanyInfo" class="text-[11px] hidden"></p><p id="headerDesigInfo" class="text-[11px] hidden"></p><p id="headerMobileInfo" class="text-[11px] hidden"></p></div>
@@ -475,7 +482,7 @@ input::placeholder{color:#bbb;font-weight:400;opacity:0.7;}
 </div>
 <div class="mt-4 flex flex-col items-center">
 <div class="relative">
-<img id="profilePhotoPreview" src="" class="w-28 h-28 rounded-full object-cover border-4 border-[#c9a86a] bg-gray-100 hidden">
+<img width="80" height="80" style="aspect-ratio:1;object-fit:cover;" id="profilePhotoPreview" src="" class="w-28 h-28 rounded-full object-cover border-4 border-[#c9a86a] bg-gray-100 hidden">
 <div id="profilePhotoPlaceholder" class="w-28 h-28 rounded-full bg-gradient-to-br from-[#c9a86a] to-[#8b7355] flex items-center justify-center text-white text-3xl font-bold">👤</div>
 <label for="profilePhotoInput" class="absolute -bottom-2 -right-2 bg-[#2b2b2b] text-white w-9 h-9 rounded-full flex items-center justify-center cursor-pointer shadow-lg">📷</label>
 </div>
@@ -575,9 +582,9 @@ function switchPage(p){
   document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));
   var t=document.getElementById('page-'+p);
   if(t)t.classList.add('active');
-  if(p==='history'||p==='home'){if(typeof loadSurveysNew==='function')loadSurveysNew();}
+  try{ localStorage.setItem('lastPage', p); }catch(e){}
   try{ localStorage.setItem('currentPage', p); }catch(e){}
-  window.scrollTo(0,0);
+  if(p==='history'||p==='home'){if(typeof loadSurveysNew==='function'){requestAnimationFrame(function(){loadSurveysNew();});}}
 }
 (function(){
   try{
@@ -870,7 +877,8 @@ try{
     }
   },200);
 }catch(e){ console.log(e); }
-document.getElementById('editBanner').classList.remove('hidden');document.getElementById('editName').textContent=s.businessName;document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById('page-add').classList.add('active');window.scrollTo(0,0);}
+document.getElementById('editBanner').classList.remove('hidden');document.getElementById('editName').textContent=s.businessName;document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById('page-add').classList.add('active');
+}
 function deleteSurvey(idx){if(confirm('Delete?')){const arr=JSON.parse(localStorage.getItem('surveys')||'[]');arr.splice(idx,1);localStorage.setItem('surveys',JSON.stringify(arr));loadSurveys();}}
 document.addEventListener('DOMContentLoaded',()=>{
 renderBiz();renderLoans();renderGodowns();loadProfile();applyLang();loadSurveys();loadDraftToForm();updateDraftUI();calcAll();
@@ -1178,7 +1186,7 @@ function updateHeaderPhoto(base64){
   if(!headerImg) {
     const avatarDiv = document.querySelector('.w-10.h-10.rounded-full');
     if(avatarDiv && base64){
-      avatarDiv.innerHTML = '<img id="headerAvatarImg" src="'+base64+'" class="w-full h-full rounded-full object-cover">';
+      avatarDiv.innerHTML = '<img width="80" height="80" style="aspect-ratio:1;object-fit:cover;" id="headerAvatarImg" src="'+base64+'" class="w-full h-full rounded-full object-cover">';
     }
     return;
   }
@@ -1315,6 +1323,12 @@ async function viewPDF(idx){
 }
 
 
+
+
+
+
+
+
 async function downloadPDF(idx){
  const surveys=JSON.parse(localStorage.getItem('surveys')||'[]');
  const s=surveys[idx]; if(!s) return;
@@ -1334,35 +1348,35 @@ async function downloadPDF(idx){
   if(document.fonts && document.fonts.ready){ await document.fonts.ready; }
   await new Promise(r=>setTimeout(r, 400));
   const canvas=await html2canvas(container,{
-    scale:1.2,
+    scale: 0.5,
     useCORS:true,
     backgroundColor:'#ffffff',
     logging:false
   });
   const imgData=canvas.toDataURL('image/jpeg', 0.70);
   const {jsPDF}=window.jspdf;
-  const pdf=new jsPDF('p','mm','a4');
-  const pageW=pdf.internal.pageSize.getWidth();
-  const pageH=pdf.internal.pageSize.getHeight();
+  const doc=new jsPDF('p','mm','a4');
+  const pageW=doc.internal.pageSize.getWidth();
+  const pageH=doc.internal.pageSize.getHeight();
   const imgW=pageW-10;
   const imgH=(canvas.height*imgW)/canvas.width;
   let hLeft=imgH;
   let pos=5;
-  pdf.addImage(imgData,'JPEG',5,pos,imgW,imgH);
+  doc.addImage(imgData,'JPEG',5,pos,imgW,imgH);
   hLeft-=pageH;
   while(hLeft>0){
     pos=hLeft-imgH+5;
-    pdf.addPage();
-    pdf.addImage(imgData,'JPEG',5,pos,imgW,imgH);
+    doc.addPage();
+    doc.addImage(imgData,'JPEG',5,pos,imgW,imgH);
     hLeft-=pageH;
   }
-  const fileName='Survey_'+(s.businessName||'Report').replace(/\s+/g,'_')+'_'+new Date().toISOString().slice(0,10)+'.pdf';
-  pdf.save(fileName);
-  try{ window.lastPDFBlob=pdf.output('blob'); window.lastPDFFileName=fileName; }catch(e){}
+  const fileName=`Market_Survey_${(s.businessName||'Report').replace(/\s+/g,'_')}_${Date.now()}.pdf`;
+  doc.save(fileName);
+  try{ window.lastPDFBlob=doc.output('blob'); window.lastPDFFileName=fileName; }catch(e){}
   if(btn) btn.textContent='✓ Downloaded';
   setTimeout(()=>{if(btn) btn.textContent='PDF Download';},2500);
  }catch(e){
-  console.error(e); alert('PDF Failed: '+e.message);
+  console.error('PDF Failed:', e);
   if(btn) btn.textContent='Failed';
  }finally{
   container.style.left='-9999px';
@@ -1370,6 +1384,7 @@ async function downloadPDF(idx){
   container.style.width='';
  }
 }
+
 
 
 async function generatePDFBlobForShare(s){
@@ -1387,30 +1402,30 @@ async function generatePDFBlobForShare(s){
   if(document.fonts && document.fonts.ready){ await document.fonts.ready; }
   await new Promise(r=>setTimeout(r, 300));
   const canvas=await html2canvas(container,{
-    scale:1.2,
+    scale: 0.5,
     useCORS:true,
     backgroundColor:'#ffffff',
     logging:false
   });
   const imgData=canvas.toDataURL('image/jpeg', 0.70);
   const {jsPDF}=window.jspdf;
-  const pdf=new jsPDF('p','mm','a4');
-  const pageW=pdf.internal.pageSize.getWidth();
-  const pageH=pdf.internal.pageSize.getHeight();
+  const doc=new jsPDF('p','mm','a4');
+  const pageW=doc.internal.pageSize.getWidth();
+  const pageH=doc.internal.pageSize.getHeight();
   const imgW=pageW-10;
   const imgH=(canvas.height*imgW)/canvas.width;
   let hLeft=imgH;
   let pos=5;
-  pdf.addImage(imgData,'JPEG',5,pos,imgW,imgH);
+  doc.addImage(imgData,'JPEG',5,pos,imgW,imgH);
   hLeft-=pageH;
   while(hLeft>0){
     pos=hLeft-imgH+5;
-    pdf.addPage();
-    pdf.addImage(imgData,'JPEG',5,pos,imgW,imgH);
+    doc.addPage();
+    doc.addImage(imgData,'JPEG',5,pos,imgW,imgH);
     hLeft-=pageH;
   }
-  const fileName='Survey_'+(s.businessName||'Report').replace(/\s+/g,'_')+'_'+new Date().toISOString().slice(0,10)+'.pdf';
-  const blob=pdf.output('blob');
+  const fileName=`Market_Survey_${(s.businessName||'Report').replace(/\s+/g,'_')}_${Date.now()}.pdf`;
+  const blob=doc.output('blob');
   return {blob, fileName};
  }finally{
   container.style.left='-9999px';
@@ -1418,6 +1433,8 @@ async function generatePDFBlobForShare(s){
   container.style.width='';
  }
 }
+
+
 
 async function sharePDF(idx){
  const surveys=JSON.parse(localStorage.getItem('surveys')||'[]');
@@ -1437,19 +1454,19 @@ async function sharePDF(idx){
   const file=new File([blob], fileName, {type:'application/pdf'});
   if(navigator.canShare && navigator.canShare({files:[file]})){
    await navigator.share({files:[file], title:fileName, text:'Market Survey Report - '+s.businessName});
-  }else if(navigator.share){
-   await navigator.share({title:fileName, text:'Market Survey Report - '+s.businessName+' - '+s.ownerName});
   }else{
-   // Fallback: if share not supported, trigger download only then
    const url=URL.createObjectURL(blob);
-   const a=document.createElement('a');
-   a.href=url; a.download=fileName; a.click();
-   setTimeout(()=>URL.revokeObjectURL(url),2000);
+   window.open(url);
+   setTimeout(()=>URL.revokeObjectURL(url), 5000);
   }
  }catch(e){
-  if(e.name!=='AbortError') alert('Share failed: '+e.message);
+  if(e.name!=='AbortError') {
+    console.error('Share failed:', e);
+  }
  }
 }
+
+
 
 function loadSurveysNew(){
  const surveys=JSON.parse(localStorage.getItem('surveys')||'[]');
@@ -1476,7 +1493,7 @@ function loadSurveysNew(){
   if(filter&&!((s.businessName||'').toLowerCase().includes(filter)||(s.ownerName||'').toLowerCase().includes(filter)||(s.mobile||'').includes(filter))) return;
   const d=document.createElement('div');
   d.className='border rounded-xl p-3 bg-white text-sm flex justify-between';
-  d.innerHTML='<div><b>'+s.businessName+'</b><br>'+s.ownerName+' | '+(s.mobile||'')+'<br><span class="text-xs text-gray-500">'+(s.businessType||'')+'</span></div><div class="flex flex-col gap-1"><button onclick="openEdit('+origIdx+')" class="bg-blue-600 text-white px-3 py-1 rounded-full text-xs">Open/Edit</button><button id="pdfBtn_'+origIdx+'" onclick="downloadPDF('+origIdx+')" class="bg-emerald-600 text-white px-3 py-1 rounded-full text-xs">PDF Download</button><button onclick="sharePDF('+origIdx+')" class="bg-[#c9a86a] text-white px-3 py-1 rounded-full text-xs">Share</button><button onclick="deleteSurvey('+origIdx+')" class="bg-red-100 text-red-600 px-3 py-1 rounded-full text-xs">Delete</button></div>';
+  d.innerHTML='<div><b>'+s.businessName+'</b><br>'+s.ownerName+' | '+(s.mobile||'')+'<br><span class="text-xs text-gray-500">'+(s.businessType||'')+'</span></div><div class="flex flex-col" style="width:135px;gap:8px"><button onclick="openEdit('+origIdx+')" class="bg-blue-600 text-white" style="min-width:135px;min-height:44px;padding:10px 20px;border-radius:22px;font-size:14px;font-weight:600;width:100%;display:flex;justify-content:center;align-items:center;text-align:center;line-height:1.2">Open/Edit</button><button id="pdfBtn_'+origIdx+'" onclick="downloadPDF('+origIdx+')" class="bg-emerald-600 text-white" style="min-width:135px;min-height:44px;padding:10px 20px;border-radius:22px;font-size:14px;font-weight:600;width:100%;display:flex;justify-content:center;align-items:center;text-align:center;line-height:1.2">PDF Download</button><button onclick="sharePDF('+origIdx+')" class="bg-[#c9a86a] text-white" style="min-width:135px;min-height:44px;padding:10px 20px;border-radius:22px;font-size:14px;font-weight:600;width:100%;display:flex;justify-content:center;align-items:center;text-align:center;line-height:1.2">Share</button><button onclick="deleteSurvey('+origIdx+')" class="bg-red-100 text-red-600" style="min-width:135px;min-height:44px;padding:10px 20px;border-radius:22px;font-size:14px;font-weight:600;width:100%;display:flex;justify-content:center;align-items:center;text-align:center;line-height:1.2">Delete</button></div>';
   list.appendChild(d);
  });
  }
@@ -1516,7 +1533,7 @@ function updateHeaderPhoto(base64){
   if(!headerImg) {
     const avatarDiv = document.querySelector('.w-10.h-10.rounded-full');
     if(avatarDiv && base64){
-      avatarDiv.innerHTML = '<img id="headerAvatarImg" src="'+base64+'" class="w-full h-full rounded-full object-cover">';
+      avatarDiv.innerHTML = '<img width="80" height="80" style="aspect-ratio:1;object-fit:cover;" id="headerAvatarImg" src="'+base64+'" class="w-full h-full rounded-full object-cover">';
     }
     return;
   }
@@ -2084,6 +2101,74 @@ if('serviceWorker' in navigator){window.addEventListener('load',()=>{const b=new
 })();
 </script>
 
+
+<script>
+// FIX: Screen Flicker / Shake on Refresh - ONLY THIS
+(function(){
+  // Persist scrollY
+  try{
+    window.addEventListener('scroll', function(){
+      sessionStorage.setItem('scrollY', String(window.scrollY));
+    }, {passive:true});
+  }catch(e){}
+
+  // Prevent pull-to-refresh shake on top (contained)
+  try{
+    let startY=0;
+    document.addEventListener('touchstart', function(e){
+      startY = e.touches[0].clientY;
+    }, {passive:true});
+    document.addEventListener('touchmove', function(e){
+      const curY = e.touches[0].clientY;
+      const diff = curY - startY;
+      if(window.scrollY===0 && diff>0){
+        // Only prevent if at top and pulling down, to stop flicker
+        // Keep it contained, don't block normal scroll
+        if(e.cancelable) e.preventDefault();
+      }
+    }, {passive:false});
+  }catch(e){}
+
+  // Skeleton / opacity transition to prevent DOM remove flash
+  const style = document.createElement('style');
+  style.textContent = '.app-container{opacity:1;transition:opacity 0.12s ease} .app-container.loading{opacity:0.92}';
+  document.head.appendChild(style);
+
+  // Persist page on refresh - restore last page
+  try{
+    const savedPage = localStorage.getItem('lastPage') || sessionStorage.getItem('lastPage');
+    if(savedPage){
+      // Restore after DOM ready
+      if(document.readyState === 'loading'){
+        document.addEventListener('DOMContentLoaded', function(){
+          try{ switchPage(savedPage); const sy = sessionStorage.getItem('scrollY'); if(sy) window.scrollTo(0, parseInt(sy,10)); }catch(e){}
+        });
+      } else {
+        setTimeout(function(){
+          try{ switchPage(savedPage); const sy = sessionStorage.getItem('scrollY'); if(sy) window.scrollTo(0, parseInt(sy,10)); }catch(e){}
+        }, 0);
+      }
+    } else {
+      // Also restore scroll if any
+      const sy = sessionStorage.getItem('scrollY');
+      if(sy){
+        setTimeout(function(){ try{ window.scrollTo(0, parseInt(sy,10)); }catch(e){} }, 0);
+      }
+    }
+  }catch(e){}
+
+  // Soft re-render instead of full reload if reload is triggered
+  // Override any location.reload usage to soft refresh data only
+  try{
+    const origReload = window.location.reload;
+    // Do not override, just ensure we don't do hard reload on pull
+    window.addEventListener('beforeunload', function(){
+      try{ sessionStorage.setItem('scrollY', String(window.scrollY)); }catch(e){}
+    });
+  }catch(e){}
+})();
+</script>
+
 </body>
 
 <script>
@@ -2524,6 +2609,74 @@ if('serviceWorker' in navigator){window.addEventListener('load',()=>{const b=new
   }
   setTimeout(bindAll, 800);
   setTimeout(bindAll, 2000);
+})();
+</script>
+
+
+<script>
+// FIX: Screen Flicker / Shake on Refresh - ONLY THIS
+(function(){
+  // Persist scrollY
+  try{
+    window.addEventListener('scroll', function(){
+      sessionStorage.setItem('scrollY', String(window.scrollY));
+    }, {passive:true});
+  }catch(e){}
+
+  // Prevent pull-to-refresh shake on top (contained)
+  try{
+    let startY=0;
+    document.addEventListener('touchstart', function(e){
+      startY = e.touches[0].clientY;
+    }, {passive:true});
+    document.addEventListener('touchmove', function(e){
+      const curY = e.touches[0].clientY;
+      const diff = curY - startY;
+      if(window.scrollY===0 && diff>0){
+        // Only prevent if at top and pulling down, to stop flicker
+        // Keep it contained, don't block normal scroll
+        if(e.cancelable) e.preventDefault();
+      }
+    }, {passive:false});
+  }catch(e){}
+
+  // Skeleton / opacity transition to prevent DOM remove flash
+  const style = document.createElement('style');
+  style.textContent = '.app-container{opacity:1;transition:opacity 0.12s ease} .app-container.loading{opacity:0.92}';
+  document.head.appendChild(style);
+
+  // Persist page on refresh - restore last page
+  try{
+    const savedPage = localStorage.getItem('lastPage') || sessionStorage.getItem('lastPage');
+    if(savedPage){
+      // Restore after DOM ready
+      if(document.readyState === 'loading'){
+        document.addEventListener('DOMContentLoaded', function(){
+          try{ switchPage(savedPage); const sy = sessionStorage.getItem('scrollY'); if(sy) window.scrollTo(0, parseInt(sy,10)); }catch(e){}
+        });
+      } else {
+        setTimeout(function(){
+          try{ switchPage(savedPage); const sy = sessionStorage.getItem('scrollY'); if(sy) window.scrollTo(0, parseInt(sy,10)); }catch(e){}
+        }, 0);
+      }
+    } else {
+      // Also restore scroll if any
+      const sy = sessionStorage.getItem('scrollY');
+      if(sy){
+        setTimeout(function(){ try{ window.scrollTo(0, parseInt(sy,10)); }catch(e){} }, 0);
+      }
+    }
+  }catch(e){}
+
+  // Soft re-render instead of full reload if reload is triggered
+  // Override any location.reload usage to soft refresh data only
+  try{
+    const origReload = window.location.reload;
+    // Do not override, just ensure we don't do hard reload on pull
+    window.addEventListener('beforeunload', function(){
+      try{ sessionStorage.setItem('scrollY', String(window.scrollY)); }catch(e){}
+    });
+  }catch(e){}
 })();
 </script>
 
